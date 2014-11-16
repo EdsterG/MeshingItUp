@@ -1,0 +1,10 @@
+as3
+*.sln
+*.vcxproj
+*.pdf
+*.o
+*.png
+*.dSYM
+
+.*
+!/.gitignore
