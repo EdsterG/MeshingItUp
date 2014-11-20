@@ -18,7 +18,7 @@ typedef struct {
 
 class BezPatch {
  private:
-  Point controls[4][4];
+  Point patch[4][4];
   double param;
 
   std::vector<std::vector<double> > faces;
@@ -31,16 +31,11 @@ class BezPatch {
   bool splitEdge(Vertex& v1, Vertex& v2, Vertex& onCurve);
 
  public:
-  BezPatch(const Point (&controls)[4][4], double param, bool adaptive);
-
+  BezPatch(Point (&patch)[4][4], double param, bool adaptive);
+  PointDeriv bezCurveInterp(Point (&curve)[4], double u);
+  Vertex bezPatchInterp(Point (&patch)[4][4], double u, double v);
   void draw();
 
-  public:
-
-    BezPatch();
-
-    PointDeriv bezcurveinterp(Point (&curve)[4], double u);
-    Vertex bezpatchinterp(Point (&patch)[4][4], double u, double v);
 };
 
 }
