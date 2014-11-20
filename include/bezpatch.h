@@ -20,6 +20,9 @@ class BezPatch {
 
   void uniformSampling();
   void adaptiveSampling();
+  void adaptiveSplit(int v1, int v2, int v3);
+  void adaptiveSplit(int* indices);
+  bool splitEdge(Vertex& v1, Vertex& v2, Vertex& onCurve);
 
  public:
   BezPatch(const Point (&controls)[4][4], double param, bool adaptive);
