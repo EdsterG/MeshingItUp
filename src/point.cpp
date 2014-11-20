@@ -13,7 +13,6 @@ using namespace stl;
 // constructors 
 Point::Point() { data[0]=0; data[1]=0; data[2]=0; }
 Point::Point(double x, double y, double z) { data[0]=x; data[1]=y; data[2]=z; }
-Point::Point(double c) { data[0]=c; data[1]=c; data[2]=c; }
 
 // bracket operator 
 double Point::operator [] (size_t i) const { return data[i]; }
