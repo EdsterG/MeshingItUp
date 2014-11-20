@@ -18,11 +18,15 @@ class Vertex {
  private:
   Point p;
   Point n;
+  double u,v;
 
  public:
   Vertex(const Point& p, const Point& n);
+  Vertex(const Point& p, const Point& n, double u, double v);
   const Point& pos();
   const Point& normal();
+  const double getU();
+  const double getV();
 
   // io stuff
   void stream_to(std::ostream& os) const;
