@@ -22,6 +22,7 @@
 #include <math.h>
 
 #include "viewport.h"
+#include "parser.h"
 
 #define PI 3.14159265  // Should be used from mathlib
 //#define SPACEBAR ' '
@@ -57,7 +58,7 @@ void myReshape(int w, int h) {
   // glOrtho(-w/WINDOW_WIDTH, w/WINDOW_WIDTH, -h/WINDOW_HEIGHT, h/WINDOW_HEIGHT, 1, -1); // resize type = center
 
   //glOrtho(-1, 1, -1, 1, 1, -1);    // resize type = stretch
-  //------------------------------------------------------------
+  //------------------------------gl------------------------------
   glMatrixMode(GL_MODELVIEW);
 }
 
@@ -72,7 +73,7 @@ void initScene(){
   // glLoadIdentity();
   // gluPerspective(45.0,WINDOW_WIDTH/WINDOW_HEIGHT,1.0,2000.0);
   // glMatrixMode(GL_MODELVIEW);
-  // glEnable(GL_DEPTH_TEST);
+  glEnable(GL_DEPTH_TEST);
 
   // myReshape(viewport.getW(),viewport.getH());
 
@@ -97,30 +98,27 @@ void myDisplay() {
   // }
 
   // Start drawing
-  // for (int i=0; i < shapes.size(); i++){
-  //   shapes[i]->draw();
-  // }
-  glBegin(GL_TRIANGLES);
-    glColor3f(1.0,0.0,0.0);
-    glVertex3f(0.0,0.5,0.0);
-    glVertex3f(-0.5,-0.5,-0.5);
-    glVertex3f(0.5,-0.5,-0.5);
+  // glBegin(GL_TRIANGLES);
+  //   glColor3f(1.0,0.0,0.0);
+  //   glVertex3f(0.0,0.5,0.0);
+  //   glVertex3f(-0.5,-0.5,-0.5);
+  //   glVertex3f(0.5,-0.5,-0.5);
 
-    glColor3f(0.0,1.0,0.0);
-    glVertex3f(0.0,0.5,0.0);
-    glVertex3f(-0.5,-0.5,-0.5);
-    glVertex3f(0.0,-0.5,0.5);
+  //   glColor3f(0.0,1.0,0.0);
+  //   glVertex3f(0.0,0.5,0.0);
+  //   glVertex3f(-0.5,-0.5,-0.5);
+  //   glVertex3f(0.0,-0.5,0.5);
 
-    glColor3f(0.0,0.0,1.0);
-    glVertex3f(0.0,0.5,0.0);
-    glVertex3f(0.5,-0.5,-0.5);
-    glVertex3f(0.0,-0.5,0.5);
+  //   glColor3f(0.0,0.0,1.0);
+  //   glVertex3f(0.0,0.5,0.0);
+  //   glVertex3f(0.5,-0.5,-0.5);
+  //   glVertex3f(0.0,-0.5,0.5);
 
-    glColor3f(1.0,0.5,1.0);
-    glVertex3f(-0.5,-0.5,-0.5);
-    glVertex3f(0.5,-0.5,-0.5);
-    glVertex3f(0.0,-0.5,0.5);
-  glEnd();
+  //   glColor3f(1.0,0.5,1.0);
+  //   glVertex3f(-0.5,-0.5,-0.5);
+  //   glVertex3f(0.5,-0.5,-0.5);
+  //   glVertex3f(0.0,-0.5,0.5);
+  // glEnd();
 
   glutPostRedisplay();
   
@@ -135,6 +133,7 @@ void myDisplay() {
   glFlush();
   glutSwapBuffers();					// swap buffers (we earlier set double buffer)
 }
+
 
 //****************************************************
 // function to process keyboard input
@@ -164,7 +163,7 @@ void myKeyboard(unsigned char key, int x, int y) {
 
 void myArrowKeys(int key, int x, int y) {
   int modifier = glutGetModifiers();
-  if (modifier&GLUT_ACTIVE_SHIFT == GLUT_ACTIVE_SHIFT) {
+  if (modifier&GLUT_ACTIVE_SHIFT != 0) {
     //Translate
     switch(key) {
       case GLUT_KEY_UP:
@@ -230,145 +229,24 @@ void myMouseMotion(int mouseX, int mouseY) {
 // function to parse the command line arguments
 //***************************************************
 void argParser(int* argc, char** argv) {
-  // int num_dl = 0;
-  // int num_pl = 0;
+  bool adaptive = false;
+  std::string fileName = "";
+  double param = 0.1;
 
-  // double x = viewport.getW()/2.0;
-  // double y = viewport.getH()/2.0;
-  // double r = std::min(viewport.getW(),viewport.getH())*0.9/2.0;
-  // sphereRadius = r;
-  // shapes.push_back(new Circle(Vector(x,y,0.0),r));
-  // shapes.back()->setMults(2.0,2.0,0.9/2.0);
+  std::string arg;
+  for (int i=1; i < *argc; i++) {
+    arg = argv[i];
 
-  // std::string arg;
-  // for (int i=1; i < *argc; i++) {
-  //   arg = argv[i];
-
-  //   if (arg.compare("-new") == 0) {
-  //     arg = argv[++i];
-  //     if (arg.compare("sphere") == 0){
-  //       double x = std::atof(argv[++i]);
-  //       double y = std::atof(argv[++i]);
-  //       double r = std::atof(argv[++i]);
-  //       shapes.push_back(new Circle(Vector(x,y,0.0),r));
-  //     }
-  //   }
-  //   else if (arg.compare("-ka") == 0) {
-  //     //Ambient color coefficients
-  //     double r = std::min(1.0,std::max(0.0,std::atof(argv[++i])));
-  //     double g = std::min(1.0,std::max(0.0,std::atof(argv[++i])));
-  //     double b = std::min(1.0,std::max(0.0,std::atof(argv[++i])));
-  //     Color ka = Color(r,g,b);
-  //     shapes.back()->setAmbientCoef(ka);
-  //     std::cout << "Ambient CC: " << r << ", " << g << ", " << b << std::endl;
-  //   }
-  //   else if (arg.compare("-kd") == 0) {
-  //     //Diffuse color coefficients
-  //     double r = std::min(1.0,std::max(0.0,std::atof(argv[++i])));
-  //     double g = std::min(1.0,std::max(0.0,std::atof(argv[++i])));
-  //     double b = std::min(1.0,std::max(0.0,std::atof(argv[++i])));
-  //     Color kd = Color(r,g,b);
-  //     shapes.back()->setDiffuseCoef(kd);
-  //     std::cout << "Diffuse CC: " << r << ", " << g << ", " << b << std::endl;
-  //   }
-  //   else if (arg.compare("-ks") == 0) {
-  //     //Specular color coefficients
-  //     double r = std::min(1.0,std::max(0.0,std::atof(argv[++i])));
-  //     double g = std::min(1.0,std::max(0.0,std::atof(argv[++i])));
-  //     double b = std::min(1.0,std::max(0.0,std::atof(argv[++i])));
-  //     Color ks = Color(r,g,b);
-  //     shapes.back()->setSpecularCoef(ks);
-  //     std::cout << "Specular CC: " << r << ", " << g << ", " << b << std::endl;
-  //   }
-  //   else if (arg.compare("-sp") == 0) {
-  //     //Power coefficient on specular term
-  //     double power = std::atof(argv[++i]); // 0 to max_double
-  //     shapes.back()->setSpecularPow(power);
-  //     std::cout << "Specular Power: " << power << std::endl;
-  //   }
-  //   else if (arg.compare("-pl") == 0) {
-  //     if (num_pl < MAX_NUM_PL) {
-  //       //Add point light
-  //       double x = std::atof(argv[++i]);
-  //       double y = std::atof(argv[++i]);
-  //       double z = std::atof(argv[++i]);
-  //       double r = std::atof(argv[++i]);
-  //       double g = std::atof(argv[++i]);
-  //       double b = std::atof(argv[++i]);
-  //       lights.push_back(new PointLight(Vector(x,y,z),Color(r,g,b)));
-  //       num_pl++;
-  //       std::cout << *(lights.back()) << std::endl;
-  //     } else {
-  //       std::cout << "Cannot add more than 5 POINT lights..." << std::endl;
-  //     }
-  //   }
-  //   else if (arg.compare("-dl") == 0) {
-  //     if (num_dl < MAX_NUM_DL) {
-  //       //Add directional light
-  //       double x = std::atof(argv[++i]);
-  //       double y = std::atof(argv[++i]);
-  //       double z = std::atof(argv[++i]);
-  //       double r = std::atof(argv[++i]);
-  //       double g = std::atof(argv[++i]);
-  //       double b = std::atof(argv[++i]);
-  //       lights.push_back(new DirectionLight(Vector(x,y,z),Color(r,g,b)));
-  //       num_dl++;
-  //       std::cout << *(lights.back()) << std::endl;
-  //     } else {
-  //       std::cout << "Cannot add more than 5 DIRECTIONAL lights..." << std::endl;
-  //     }
-  //   }
-  //   else if (arg.compare("-s") == 0) {
-  //     fileName = (std::string)"autosave/"+(std::string)(argv[++i]);
-  //     std::cout << fileName << std::endl;
-  //   }
-  //   else if (arg.compare("-o") == 0) {
-  //     shapes.back()->setOutline(true);
-  //     glClearColor(0.2f, 0.2f, 0.2f, 1.0f); // Clear to gray, fully transparent
-  //   }
-  //   else if (arg.compare("-q") == 0) {
-  //     shapes.back()->setQuantize(std::atof(argv[++i]));
-  //   }
-  //   else if (arg.compare("-a") == 0) {
-  //     //Anisotropic, phong-like exponents to control the shape of the specular lobe.
-  //     double nu = std::atof(argv[++i]);
-  //     double nv = std::atof(argv[++i]);
-  //     shapes.back()->setAnisotropicCoef(nu,nv);
-  //   }
-  //   else if (arg.compare("-t") == 0) {
-  //     //Texture
-  //     shapes.back()->setPerlinTexture(true,std::atof(argv[++i]),std::atof(argv[++i]),std::atoi(argv[++i]));
-  //   }
-  //   else if (arg.compare("-m") == 0) {
-  //     shapes.back()->setMults(3.0,4.0,1.0/6.0);
-  //     shapes.back()->setAmbientCoef(Color(0.1,0.1,0));
-  //     shapes.back()->setDiffuseCoef(Color(1,1,0));
-  //     shapes.back()->setSpecularCoef(Color(0.8,0.8,0.8));
-  //     shapes.back()->setSpecularPow(16);
-
-  //     shapes.push_back(new Circle(Vector(0.0,9.0,0.0),5.0));
-  //     shapes.back()->setMults(3.0/2.0,3.0/2.0,1.0/5.0);
-  //     shapes.back()->setAmbientCoef(Color(0.1,0.1,0));
-  //     shapes.back()->setDiffuseCoef(Color(1,0.7,0.3 ));
-  //     shapes.back()->setSpecularCoef(Color(0.6,0.2,0.8));
-  //     shapes.back()->setSpecularPow(16);
-
-  //     shapes.push_back(new Circle(Vector(0.0,9.0,0.0),5.0));
-  //     shapes.back()->setMults(5.0,2.0/1.5,1.0/8.0);
-  //     shapes.back()->setAmbientCoef(Color(0.1,0.1,0.1));
-  //     shapes.back()->setDiffuseCoef(Color(0.1,0.1,0.1));
-  //     shapes.back()->setSpecularCoef(Color(0.5,0.5,0.5));
-  //     shapes.back()->setSpecularPow(4);
-
-  //     lights.push_back(new PointLight(Vector(-5,-5,5),Color(0.6,0,0.6)));
-  //     lights.push_back(new PointLight(Vector(10,10,-10),Color(0.5,0.5,0.5)));
-  //     //lights.push_back(new PointLight(Vector(3,-4,8),Color(0.5,0.5,0)));
-  //     lights.push_back(new PointLight(Vector(1,2,3),Color(0,0.4,0.4)));
-
-  //   }
-
-  // }
-
+    if (i==1) {
+      fileName = arg;
+    }
+    else if (i==2) {
+      param = std::atof(argv[i]);
+    }
+    else if (i==3 && arg.compare("-a")==0) {
+      adaptive = true;
+    }
+  }
 }
 
 //Functions to test our code
@@ -420,12 +298,12 @@ int main(int argc, char *argv[]) {
 
   //This initializes glut
   glutInit(&argc, argv);
-  
-  // Initalize theviewport
-  viewport = Viewport(400,400);
 
   //This tells glut to use a double-buffered window with red, green, and blue channels, and a depth buffer.
   glutInitDisplayMode(GLUT_DOUBLE | GLUT_RGB | GLUT_DEPTH);
+
+  // Initalize theviewport
+  viewport = Viewport(400,400);
 
   //The size and position of the window
   glutInitWindowSize(viewport.getW(), viewport.getH());
@@ -433,7 +311,8 @@ int main(int argc, char *argv[]) {
   glutCreateWindow(argv[0]);
 
   //This parses the arguments and sets up the global variables
-  argParser(&argc, argv);
+  Parser argParser = Parser();
+  argParser.parse(&argc, argv);
 
   initScene();							// quick function to set up scene
 

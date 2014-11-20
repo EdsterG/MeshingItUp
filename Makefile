@@ -16,18 +16,19 @@ endif
 #-g -Wall
 
 OUTPUT = as3
-SOURCES = src/main.cpp  src/viewport.cpp
+SOURCES = src/main.cpp  src/viewport.cpp src/parser.cpp
 #lodepng/lodepng.cpp
 #SOURCES = $(shell find . -name *.cpp)
 #SOURCES=$(wildcard src/*.cpp)
 OBJECTS = $(SOURCES:%.cpp=%.o)
 
 RM = /bin/rm -f
-all: build $(OUTPUT)
-build:
-	@mkdir -p bin
-	@mkdir -p bin/src
-	@mkdir -p bin/lodepng
+all: $(OUTPUT)
+# all: build $(OUTPUT)
+# build:
+# 	@mkdir -p bin
+# 	@mkdir -p bin/src
+# 	@mkdir -p bin/lodepng
 $(OUTPUT): $(OBJECTS)
 	$(CC) $(CFLAGS) $(OBJECTS) -o $(OUTPUT) $(LDFLAGS)
 %.o: %.cpp
