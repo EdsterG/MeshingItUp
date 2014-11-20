@@ -1,5 +1,5 @@
-/* 
-Authors: 
+/*
+Authors:
 Wisam Reid cs184-ds
 Eddie Groshev cs184-en
 */
@@ -10,7 +10,7 @@ Eddie Groshev cs184-en
 #include "point.h"
 #include <iostream>
 
-// stl :: String Theory Labs (Taking over a universe near you) 
+// stl :: String Theory Labs (Taking over a universe near you)
 namespace stl
 {
 
@@ -23,10 +23,10 @@ class Point {
   Point(double x, double y, double z );
   Point(double c);
 
-  // bracket operator 
-  double operator [] (size_t i) const;
+  // bracket operator
+  double& operator [] (size_t i);
 
-  // create new point: point addition/subtraction 
+  // create new point: point addition/subtraction
   Point operator + (const Point& v2) const;
   Point operator - (const Point& v2) const;
 
@@ -37,7 +37,7 @@ class Point {
   // create new point: unary negation
   Point operator - () const;
 
-  // override point: point addition/subtraction 
+  // override point: point addition/subtraction
   Point& operator += (const Point& v2);
   Point& operator -= (const Point& v2);
 

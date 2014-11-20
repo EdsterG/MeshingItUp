@@ -36,7 +36,7 @@ namespace stl
 class Parser {
  public:
   void parse(int* argc, char** argv);
-  void loadBez(std::string fileName);
+  void loadBez(std::string fileName, double param, bool adaptive);
   // void loadObj();
   // void loadMat();
 };

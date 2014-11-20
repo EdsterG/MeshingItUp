@@ -27,10 +27,10 @@ void BezPatch::uniformSampling() {
   int indices[4];
   for (int i = 0; i < num_steps-1; i+=1) {
     for (int j = 0; j < num_steps-1; j+=1) {
-      indices[1] = i*num_steps+j;
-      indices[2] = indices[1]+1;
-      indices[3] = (i+1)*num_steps+j;
-      indices[4] = indices[3]+1;
+      indices[0] = i*num_steps+j;
+      indices[1] = indices[0]+1;
+      indices[2] = (i+1)*num_steps+j;
+      indices[3] = indices[2]+1;
 
       faces.push_back(std::vector<double>(indices,indices+2));
       faces.push_back(std::vector<double>(indices+1,indices+3));
@@ -56,7 +56,6 @@ bool BezPatch::splitEdge(Vertex& v1, Vertex& v2, Vertex& onCurve) {
   return (((v1.pos()+v2.pos())/2.0-onCurve.pos()).norm()>param);
 }
 
-void BezPatch::adaptiveSplit(int* indices) {
   Vertex v1 = verticies[indices[0]];
   Vertex v2 = verticies[indices[1]];
   Vertex v3 = verticies[indices[2]];
