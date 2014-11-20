@@ -22,13 +22,12 @@ class BezPatch {
   double param;
 
   std::vector<std::vector<double> > faces;
-  std::vector<Vertex> verticies;
+  std::vector<Vertex> vertices;
 
   void uniformSampling();
   void adaptiveSampling();
-  void adaptiveSplit(int v1, int v2, int v3);
-  void adaptiveSplit(int* indices);
-  bool splitEdge(Vertex& v1, Vertex& v2, Vertex& onCurve);
+  void adaptiveSplit(int index1, int index2, int index3);
+  bool splitEdge(Vertex& v1, Vertex& v2, Vertex& v_on_curve);
 
  public:
   BezPatch(Point (&patch)[4][4], double param, bool adaptive);

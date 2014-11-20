@@ -3,6 +3,19 @@ Authors:
 Wisam Reid cs184-ds
 Eddie Groshev cs184-en
 */
+#ifdef _WIN32
+#include <windows.h>
+#else
+#include <sys/time.h>
+#endif
+
+#ifdef OSX
+#include <GLUT/glut.h>
+#include <OpenGL/glu.h>
+#else
+#include <GL/glut.h>
+#include <GL/glu.h>
+#endif
 
 #include "bezpatch.h"
 
@@ -19,18 +32,18 @@ else
 void BezPatch::uniformSampling() {
   for (double u = 0; u <= 1; u+=param) {
     for (double v = 0; v <= 1; v+=param) {
-      // verticies.push_back(bezpatchinterp(patch,u,v));
+      vertices.push_back(bezPatchInterp(patch,u,v));
     }
   }
 
   int num_steps = (int)(1/param);
   int indices[4];
-  for (int i = 0; i < num_steps-1; i+=1) {
-    for (int j = 0; j < num_steps-1; j+=1) {
-      indices[1] = i*num_steps+j;
-      indices[2] = indices[1]+1;
-      indices[3] = (i+1)*num_steps+j;
-      indices[4] = indices[3]+1;
+  for (int i = 0; i < num_steps-1; i++) {
+    for (int j = 0; j < num_steps-1; j++) {
+      indices[0] = i*num_steps+j;
+      indices[1] = indices[0]+1;
+      indices[2] = (i+1)*num_steps+j;
+      indices[3] = indices[2]+1;
 
       faces.push_back(std::vector<double>(indices,indices+2));
       faces.push_back(std::vector<double>(indices+1,indices+3));
@@ -39,72 +52,108 @@ void BezPatch::uniformSampling() {
 
 }
 void BezPatch::adaptiveSampling() {
-  // verticies.push_back(bezpatchinterp(patch,0,0));
-  // verticies.push_back(bezpatchinterp(patch,0,1));
-  // verticies.push_back(bezpatchinterp(patch,1,0));
-  // verticies.push_back(bezpatchinterp(patch,1,1));
+  vertices.push_back(bezPatchInterp(patch,0,0));
+  vertices.push_back(bezPatchInterp(patch,0,1));
+  vertices.push_back(bezPatchInterp(patch,1,0));
+  vertices.push_back(bezPatchInterp(patch,1,1));
 
-  int indicies1[3] = {0,1,2};
-  adaptiveSplit(indicies1);
-  int indicies2[3] = {1,2,3};
-  adaptiveSplit(indicies2);
-  // adaptiveSplit(0,1,2);
-  // adaptiveSplit(1,2,3);
+  adaptiveSplit(0,1,2);
+  adaptiveSplit(1,3,2);
 }
 
-bool BezPatch::splitEdge(Vertex& v1, Vertex& v2, Vertex& onCurve) {
-  return (((v1.pos()+v2.pos())/2.0-onCurve.pos()).norm()>param);
+bool BezPatch::splitEdge(Vertex& v1, Vertex& v2, Vertex& v_on_curve) {
+  return (((v1.pos()+v2.pos())/2.0-v_on_curve.pos()).norm()>param);
 }
 
-void BezPatch::adaptiveSplit(int* indices) {
-  Vertex v1 = verticies[indices[0]];
-  Vertex v2 = verticies[indices[1]];
-  Vertex v3 = verticies[indices[2]];
-  // Vertex p1 = bezPatchInterp(patch, (v1.getU() + v2.getU())/2, (v1.getV() + v2.getV())/2);
-  // Vertex p2 = bezPatchInterp(patch, (v2.getU() + v3.getU())/2, (v2.getV() + v3.getV())/2);
-  // Vertex p3 = bezPatchInterp(patch, (v3.getU() + v1.getU())/2, (v3.getV() + v1.getV())/2);
+void BezPatch::adaptiveSplit(int index1, int index2, int index3) {
+  Vertex v1 = vertices[index1];
+  Vertex v2 = vertices[index2];
+  Vertex v3 = vertices[index3];
+  Vertex p1 = bezPatchInterp(patch, (v1.getU() + v2.getU())/2, (v1.getV() + v2.getV())/2);
+  Vertex p2 = bezPatchInterp(patch, (v2.getU() + v3.getU())/2, (v2.getV() + v3.getV())/2);
+  Vertex p3 = bezPatchInterp(patch, (v3.getU() + v1.getU())/2, (v3.getV() + v1.getV())/2);
 
-  // bool e1 = splitEdge(v1,v2,p1);
-  // bool e2 = splitEdge(v2,v3,p2);
-  // bool e3 = splitEdge(v3,v1,p3);
+  bool e1 = splitEdge(v1,v2,p1);
+  bool e2 = splitEdge(v2,v3,p2);
+  bool e3 = splitEdge(v3,v1,p3);
 
-  // if (e1+e2+e3 == 0) {
-  //   //face.push_back(std::vector<double>(indices,indices+2))
-  // }
-  // else if (e1+e2+e3 == 1){
-  //     int indicies1[3] = {0,1,2};
-  //     adaptiveSplit(indicies1);
-  //     int indicies2[3] = {1,2,3};
-  //     adaptiveSplit(indicies2);
-  // }
-  // else if (e1+e2+e3 == 2){
-  // } else {
-  //   int indicies1[3] = {0,1,2};
-  //   int indicies2[3] = {0,1,2};
-  //   int indicies3[3] = {0,1,2};
-  //   int indicies4[3] = {0,1,2};
-  // }
-}
+  if (e1+e2+e3 == 0) {
+    int indices[3] = {index1,index2,index3};
+    faces.push_back(std::vector<double>(indices,indices+2));
+  }
+  else if (e1+e2+e3 == 1){
+    if (e1) {
+      vertices.push_back(p1);
+      int p1_index = vertices.size()-1;
+      adaptiveSplit(index1,p1_index,index3);
+      adaptiveSplit(p1_index,index2,index3);
+    }
+    else if (e2) {
+      vertices.push_back(p2);
+      int p2_index = vertices.size()-1;
+      adaptiveSplit(index1,index2,p2_index);
+      adaptiveSplit(index1,p2_index,index3);
+    }
+    else {
+      vertices.push_back(p3);
+      int p3_index = vertices.size()-1;
+      adaptiveSplit(index1,index2,p3_index);
+      adaptiveSplit(p3_index,index2,index3);
+    }
+  }
+  else if (e1+e2+e3 == 2){
+    if (e1+e2 == 2) {
+      vertices.push_back(p1);
+      vertices.push_back(p2);
+      int p2_index = vertices.size()-1;
+      int p1_index = p2_index-1;
+      adaptiveSplit(index1,p1_index,index3);
+      adaptiveSplit(p1_index,p2_index,index3);
+      adaptiveSplit(p1_index,index2,p2_index);
+    }
+    else if (e2+e3 == 2) {
+      vertices.push_back(p2);
+      vertices.push_back(p3);
+      int p3_index = vertices.size()-1;
+      int p2_index = p3_index-1;
+      adaptiveSplit(index1,index2,p2_index);
+      adaptiveSplit(index1,p2_index,p3_index);
+      adaptiveSplit(p3_index,p2_index,index3);
+    }
+    else {
+      vertices.push_back(p1);
+      vertices.push_back(p3);
+      int p3_index = vertices.size()-1;
+      int p1_index = p3_index-1;
+      adaptiveSplit(index1,p1_index,p3_index);
+      adaptiveSplit(p1_index,index2,p3_index);
+      adaptiveSplit(p3_index,index2,index3);
+    }
+  } else {
+    vertices.push_back(p1);
+    vertices.push_back(p2);
+    vertices.push_back(p3);
+    int p3_index = vertices.size()-1;
+    int p2_index = p3_index-1;
+    int p1_index = p3_index-2;
 
-void BezPatch::adaptiveSplit(int v1, int v2, int v3) {
-  // Vertex p1 = bezPatchInterp(patch, (v1.getU() + v2.getU())/2, (v1.getV() + v2.getV())/2);
-  // Vertex p2 = bezPatchInterp(patch, (v2.getU() + v3.getU())/2, (v2.getV() + v3.getV())/2);
-  // Vertex p3 = bezPatchInterp(patch, (v3.getU() + v1.getU())/2, (v3.getV() + v1.getV())/2);
-
-  // bool e1 = splitEdge(v1,v2,p1);
-  // bool e2 = splitEdge(v2,v3,p2);
-  // bool e3 = splitEdge(v3,v1,p3);
-
-  // if (!e1 && !e2 && !e3) {
-  //   //face.push_back(std::vector<double>(indices,indices+2))
-  // }
-  // else if (!e1 && !e2 && !e3) {
-
-  // }
+    adaptiveSplit(index1,p1_index,p3_index);
+    adaptiveSplit(p1_index,index2,p2_index);
+    adaptiveSplit(p3_index,p2_index,index3);
+    adaptiveSplit(p1_index,p2_index,p3_index);
+  }
 }
 
 void BezPatch::draw() {
-
+  for (int i=0; i < faces.size(); i++) {
+    glBegin(GL_TRIANGLES);
+    for (int k=0; k < faces[i].size(); k++){
+      Vertex v = vertices[faces[i][k]];
+      glNormal3f(v.normal()[0], v.normal()[1], v.normal()[2]);
+      glVertex3f(v.pos()[0], v.pos()[1], v.pos()[2]);
+    }
+    glEnd();
+  }
 }
 
 PointDeriv BezPatch::bezCurveInterp(Point (&curve)[4], double u){
@@ -128,11 +177,9 @@ PointDeriv BezPatch::bezCurveInterp(Point (&curve)[4], double u){
   PD.d = (E - D) * 3;
 
   return PD;
-
 };
 
 Vertex BezPatch::bezPatchInterp(Point (&patch)[4][4], double u, double v){
-
   Point n;
   PointDeriv uPD, vPD;
   Point vcurve[4];
@@ -141,7 +188,7 @@ Vertex BezPatch::bezPatchInterp(Point (&patch)[4][4], double u, double v){
   // build control points
   for(int i = 0; i < 4; i++){
     // build control points for a Bezier curve in v
-    vcurve[0] = bezCurveInterp(patch[0], u).p;
+    vcurve[i] = bezCurveInterp(patch[i], u).p;
 
     // build control points for a Bezier curve in v
     Point tempCurve[4];
@@ -156,7 +203,7 @@ Vertex BezPatch::bezPatchInterp(Point (&patch)[4][4], double u, double v){
   uPD = bezCurveInterp(ucurve, u);
   // take cross product of partials to find normal
   n = (uPD.d).cross(vPD.d);
-  n = n.norm();
+  n = n/n.norm();
 
   return Vertex(uPD.p, n);
 };
