@@ -16,7 +16,7 @@ endif
 #-g -Wall
 
 OUTPUT = as3
-SOURCES = src/main.cpp  src/viewport.cpp src/parser.cpp
+SOURCES = src/main.cpp  src/viewport.cpp src/parser.cpp src/point.cpp
 #lodepng/lodepng.cpp
 #SOURCES = $(shell find . -name *.cpp)
 #SOURCES=$(wildcard src/*.cpp)
