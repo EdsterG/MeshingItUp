@@ -24,6 +24,7 @@ Point Point::operator - (const Point& v2) const { return Point(data[0] - v2.data
 
 // create new point: operations with a constant
 Point Point::operator * (double c) const { return Point(data[0] * c, data[1] * c, data[2] * c); }
+Point Point::operator / (double c) const { return Point(data[0] / c, data[1] / c, data[2] / c); }
 
 // create new point: unary negation
 Point Point::operator - () const { return Point(-data[0], -data[1], -data[2]); }

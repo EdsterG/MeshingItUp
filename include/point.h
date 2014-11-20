@@ -32,6 +32,7 @@ class Point {
 
   // create new point: operations with a constant
   Point operator * (double c) const;
+  Point operator / (double c) const;
 
   // create new point: unary negation
   Point operator - () const;
