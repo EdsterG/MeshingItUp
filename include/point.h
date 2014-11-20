@@ -51,7 +51,7 @@ class Point {
   void stream_to(std::ostream& os) const;
 };
 
-static inline std::ostream& operator << (std::ostream& os, const Point& v) {v.stream_to(os); return os;}
+static inline std::ostream& operator << (std::ostream& os, const Point& p) {p.stream_to(os); return os;}
 
 }
 
