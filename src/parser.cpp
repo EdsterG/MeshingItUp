@@ -3,6 +3,8 @@
 #include <fstream>
 #include <sstream>
 #include <vector>
+#include "point.h"
+#include "bezpatch.h"
 
 using namespace stl;
 
@@ -41,7 +43,7 @@ void Parser::parse(int* argc, char** argv) {
 
 void Parser::loadBez(std::string filename, double param, bool adaptive) {
   int numPatches;
-  //std::vector<BezPatch> patches;
+  std::vector<BezPatch> patches;
 
   std::ifstream scnFile(filename.c_str());
   if (scnFile.is_open()) {
@@ -70,10 +72,19 @@ void Parser::loadBez(std::string filename, double param, bool adaptive) {
         continue;
       }
       else if (items.size() == 1) {
-        numPatches = std::atoi(items[1].c_str());
+        numPatches = std::atoi(items[0].c_str());
       }
       else if (items.size() == 12) {
+        Point tempPoint;
+        Point tempPatch[4][4];
         std::cout << "Storing: " << line << std::endl;
+        for (int pointNum = 0; pointNum < 4; pointNum++){
+          for(int i = 0; i < 3; i++){
+            tempPoint[i] = std::atof(items[i+pointNum].c_str());
+          }
+          tempPatch[patchRow][pointNum] = tempPoint;
+          patches.push_back(BezPatch(tempPatch, param, adaptive));
+        }
         patchRow++;
         if (patchRow==4) {
           std::cout << "Patch created!" << std::endl;
@@ -93,7 +104,7 @@ void Parser::loadBez(std::string filename, double param, bool adaptive) {
     //return patches;
 
   }
-  else std::cout << "Unable to open file" << std::endl; 
+  else std::cout << "Unable to open file" << std::endl;
 }
 
 // void Parser::loadOBJ(std::string filename, std::vector<Primitive*>& faces) {
@@ -204,7 +215,7 @@ void Parser::loadBez(std::string filename, double param, bool adaptive) {
 //     }
 //     scnFile.close();
 //   }
-//   else std::cout << "Unable to open file" << std::endl; 
+//   else std::cout << "Unable to open file" << std::endl;
 // }
 
 // void Parser::loadMTL(std::string filename) {
