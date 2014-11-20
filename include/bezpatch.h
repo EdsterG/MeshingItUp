@@ -32,7 +32,7 @@ class BezPatch {
  public:
   BezPatch(Point (&patch)[4][4], double param, bool adaptive);
   PointDeriv bezCurveInterp(Point (&curve)[4], double u);
-  Vertex bezPatchInterp(Point (&patch)[4][4], double u, double v);
+  Vertex bezPatchInterp(double u, double v);
   void draw();
 
 };

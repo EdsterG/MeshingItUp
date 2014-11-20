@@ -21,8 +21,10 @@
 #include <time.h>
 #include <math.h>
 
+#include <vector>
 #include "viewport.h"
 #include "parser.h"
+#include "bezpatch.h"
 
 #define PI 3.14159265  // Should be used from mathlib
 //#define SPACEBAR ' '
@@ -38,6 +40,9 @@ using namespace stl;
 // Global Variables
 //****************************************************
 Viewport  viewport;
+std::vector<BezPatch> patches;
+std::vector<std::vector<double> > trans;
+std::vector<std::vector<double> > rot;
 
 
 //****************************************************
@@ -68,12 +73,14 @@ void myReshape(int w, int h) {
 //****************************************************
 void initScene(){
   // // Nothing to do here for this simple example.
-  // glClearColor(0.0f, 0.0f, 0.0f, 1.0f); // Clear to black, fully transparent
+  glClearColor(0.0f, 0.0f, 0.0f, 1.0f); // Clear to black, fully transparent
+  glClearDepth(1.0f);
   // glMatrixMode(GL_PROJECTION);
   // glLoadIdentity();
   // gluPerspective(45.0,WINDOW_WIDTH/WINDOW_HEIGHT,1.0,2000.0);
   // glMatrixMode(GL_MODELVIEW);
   glEnable(GL_DEPTH_TEST);
+  glDepthFunc(GL_LEQUAL);
 
   // myReshape(viewport.getW(),viewport.getH());
 
@@ -87,7 +94,7 @@ void myDisplay() {
 
   glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);                // clear the color buffer (sets everything to black), and the depth buffer.
 
-  glMatrixMode(GL_MODELVIEW);			        // indicate we are specifying camera transformations
+  //glMatrixMode(GL_MODELVIEW);			        // indicate we are specifying camera transformations
   glLoadIdentity();				        // make sure transformation is "zero'd"
 
 
@@ -98,26 +105,52 @@ void myDisplay() {
   // }
 
   // Start drawing
+  //glPolygonMode(GL_FRONT_AND_BACK, GL_LINE);
+  for (int i=0; i<patches.size(); i++) {
+    glColor3f(1.0,0.0,0.0);
+    glTranslatef(0.0, 0.5, -0.5);
+    glRotatef(40,0.0,1.0,1.0);
+      // glTranslatef(trans[0][0], trans[0][1], trans[0][2]);
+      // glRotatef(rot[0],1.0,0.0,0.0);
+      // glRotatef(rot[1],0.0,1.0,0.0);
+      // glRotatef(rot[2],0.0,0.0,1.0);
+      // glShadeModel(GL_SMOOTH);
+    patches[i].draw();
+  }
+
+// http://www.glprogramming.com/red/chapter14.html#name16
+// glEnable(GL_DEPTH_TEST);
+// glPolygonMode(GL_FRONT_AND_BACK, GL_LINE);
+// set_color(foreground);
+// draw_object_with_filled_polygons();
+
+// glPolygonMode(GL_FRONT_AND_BACK, GL_FILL);
+// glEnable(GL_POLYGON_OFFSET_FILL);
+// glPolygonOffset(1.0, 1.0);
+// set_color(background);
+// draw_object_with_filled_polygons();
+// glDisable(GL_POLYGON_OFFSET_FILL);
+
   // glBegin(GL_TRIANGLES);
   //   glColor3f(1.0,0.0,0.0);
-  //   glVertex3f(0.0,0.5,0.0);
-  //   glVertex3f(-0.5,-0.5,-0.5);
-  //   glVertex3f(0.5,-0.5,-0.5);
+  //   glVertex3f(0.0,1,0.0);
+  //   glVertex3f(-1,-1,-1);
+  //   glVertex3f(1,-1,-1);
 
   //   glColor3f(0.0,1.0,0.0);
-  //   glVertex3f(0.0,0.5,0.0);
-  //   glVertex3f(-0.5,-0.5,-0.5);
-  //   glVertex3f(0.0,-0.5,0.5);
+  //   glVertex3f(0.0,1,0.0);
+  //   glVertex3f(-1,-1,-1);
+  //   glVertex3f(0.0,-1,1);
 
   //   glColor3f(0.0,0.0,1.0);
-  //   glVertex3f(0.0,0.5,0.0);
-  //   glVertex3f(0.5,-0.5,-0.5);
-  //   glVertex3f(0.0,-0.5,0.5);
+  //   glVertex3f(0.0,1,0.0);
+  //   glVertex3f(1,-1,-1);
+  //   glVertex3f(0.0,-1,1);
 
-  //   glColor3f(1.0,0.5,1.0);
-  //   glVertex3f(-0.5,-0.5,-0.5);
-  //   glVertex3f(0.5,-0.5,-0.5);
-  //   glVertex3f(0.0,-0.5,0.5);
+  //   glColor3f(1.0,1,1.0);
+  //   glVertex3f(-1,-1,-1);
+  //   glVertex3f(1,-1,-1);
+  //   glVertex3f(0.0,-1,1);
   // glEnd();
 
   glutPostRedisplay();
@@ -223,30 +256,6 @@ void myMouseMotion(int mouseX, int mouseY) {
   // }
 
   // glutPostRedisplay();
-}
-
-//****************************************************
-// function to parse the command line arguments
-//***************************************************
-void argParser(int* argc, char** argv) {
-  bool adaptive = false;
-  std::string fileName = "";
-  double param = 0.1;
-
-  std::string arg;
-  for (int i=1; i < *argc; i++) {
-    arg = argv[i];
-
-    if (i==1) {
-      fileName = arg;
-    }
-    else if (i==2) {
-      param = std::atof(argv[i]);
-    }
-    else if (i==3 && arg.compare("-a")==0) {
-      adaptive = true;
-    }
-  }
 }
 
 //Functions to test our code

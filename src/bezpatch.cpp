@@ -32,7 +32,7 @@ else
 void BezPatch::uniformSampling() {
   for (double u = 0; u <= 1; u+=param) {
     for (double v = 0; v <= 1; v+=param) {
-      vertices.push_back(bezPatchInterp(patch,u,v));
+      vertices.push_back(bezPatchInterp(u,v));
     }
   }
 
@@ -45,17 +45,17 @@ void BezPatch::uniformSampling() {
       indices[2] = (i+1)*num_steps+j;
       indices[3] = indices[2]+1;
 
-      faces.push_back(std::vector<double>(indices,indices+2));
-      faces.push_back(std::vector<double>(indices+1,indices+3));
+      faces.push_back(std::vector<double>(indices,indices+3));
+      faces.push_back(std::vector<double>(indices+1,indices+4));
     }
   }
 
 }
 void BezPatch::adaptiveSampling() {
-  vertices.push_back(bezPatchInterp(patch,0,0));
-  vertices.push_back(bezPatchInterp(patch,0,1));
-  vertices.push_back(bezPatchInterp(patch,1,0));
-  vertices.push_back(bezPatchInterp(patch,1,1));
+  vertices.push_back(bezPatchInterp(0,0));
+  vertices.push_back(bezPatchInterp(0,1));
+  vertices.push_back(bezPatchInterp(1,0));
+  vertices.push_back(bezPatchInterp(1,1));
 
   adaptiveSplit(0,1,2);
   adaptiveSplit(1,3,2);
@@ -69,9 +69,9 @@ void BezPatch::adaptiveSplit(int index1, int index2, int index3) {
   Vertex v1 = vertices[index1];
   Vertex v2 = vertices[index2];
   Vertex v3 = vertices[index3];
-  Vertex p1 = bezPatchInterp(patch, (v1.getU() + v2.getU())/2, (v1.getV() + v2.getV())/2);
-  Vertex p2 = bezPatchInterp(patch, (v2.getU() + v3.getU())/2, (v2.getV() + v3.getV())/2);
-  Vertex p3 = bezPatchInterp(patch, (v3.getU() + v1.getU())/2, (v3.getV() + v1.getV())/2);
+  Vertex p1 = bezPatchInterp((v1.getU() + v2.getU())/2, (v1.getV() + v2.getV())/2);
+  Vertex p2 = bezPatchInterp((v2.getU() + v3.getU())/2, (v2.getV() + v3.getV())/2);
+  Vertex p3 = bezPatchInterp((v3.getU() + v1.getU())/2, (v3.getV() + v1.getV())/2);
 
   bool e1 = splitEdge(v1,v2,p1);
   bool e2 = splitEdge(v2,v3,p2);
@@ -79,7 +79,7 @@ void BezPatch::adaptiveSplit(int index1, int index2, int index3) {
 
   if (e1+e2+e3 == 0) {
     int indices[3] = {index1,index2,index3};
-    faces.push_back(std::vector<double>(indices,indices+2));
+    faces.push_back(std::vector<double>(indices,indices+3));
   }
   else if (e1+e2+e3 == 1){
     if (e1) {
@@ -144,18 +144,6 @@ void BezPatch::adaptiveSplit(int index1, int index2, int index3) {
   }
 }
 
-void BezPatch::draw() {
-  for (int i=0; i < faces.size(); i++) {
-    glBegin(GL_TRIANGLES);
-    for (int k=0; k < faces[i].size(); k++){
-      Vertex v = vertices[faces[i][k]];
-      glNormal3f(v.normal()[0], v.normal()[1], v.normal()[2]);
-      glVertex3f(v.pos()[0], v.pos()[1], v.pos()[2]);
-    }
-    glEnd();
-  }
-}
-
 PointDeriv BezPatch::bezCurveInterp(Point (&curve)[4], double u){
   Point A, B, C, D, E;
   PointDeriv PD;
@@ -179,7 +167,7 @@ PointDeriv BezPatch::bezCurveInterp(Point (&curve)[4], double u){
   return PD;
 };
 
-Vertex BezPatch::bezPatchInterp(Point (&patch)[4][4], double u, double v){
+Vertex BezPatch::bezPatchInterp(double u, double v){
   Point n;
   PointDeriv uPD, vPD;
   Point vcurve[4];
@@ -207,3 +195,36 @@ Vertex BezPatch::bezPatchInterp(Point (&patch)[4][4], double u, double v){
 
   return Vertex(uPD.p, n);
 };
+
+void BezPatch::draw() {
+  for (int i=0; i < faces.size(); i++) {
+    glBegin(GL_TRIANGLES);
+    for (int k=0; k < faces[i].size(); k++){
+      Vertex v = vertices[faces[i][k]];
+      glNormal3f(v.normal()[0], v.normal()[1], v.normal()[2]);
+      glVertex3f(v.pos()[0], v.pos()[1], v.pos()[2]);
+    }
+    glEnd();
+  }
+  // glBegin(GL_TRIANGLES);
+  //   glColor3f(1.0,0.0,0.0);
+  //   glVertex3f(0.0,1,0.0);
+  //   glVertex3f(-1,-1,-1);
+  //   glVertex3f(1,-1,-1);
+
+  //   glColor3f(0.0,1.0,0.0);
+  //   glVertex3f(0.0,1,0.0);
+  //   glVertex3f(-1,-1,-1);
+  //   glVertex3f(0.0,-1,1);
+
+  //   glColor3f(0.0,0.0,1.0);
+  //   glVertex3f(0.0,1,0.0);
+  //   glVertex3f(1,-1,-1);
+  //   glVertex3f(0.0,-1,1);
+
+  //   glColor3f(1.0,1,1.0);
+  //   glVertex3f(-1,-1,-1);
+  //   glVertex3f(1,-1,-1);
+  //   glVertex3f(0.0,-1,1);
+  // glEnd();
+}

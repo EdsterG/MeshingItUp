@@ -8,14 +8,7 @@
 
 using namespace stl;
 
-// struct Vertex
-// {
-//     float position[3];
-//     float texCoord[2];
-//     float normal[3];
-//     float tangent[4];
-//     float bitangent[3];
-// };
+extern std::vector<BezPatch> patches;
 
 void Parser::parse(int* argc, char** argv) {
   bool adaptive = false;
@@ -43,7 +36,7 @@ void Parser::parse(int* argc, char** argv) {
 
 void Parser::loadBez(std::string filename, double param, bool adaptive) {
   int numPatches;
-  std::vector<BezPatch> patches;
+  std::vector<BezPatch> local_patches;
   Point tempPatch[4][4];
 
   std::ifstream scnFile(filename.c_str());
@@ -53,10 +46,12 @@ void Parser::loadBez(std::string filename, double param, bool adaptive) {
     while (std::getline(scnFile,line)) {
       char delim = ' ';
       std::replace(line.begin(),line.end(),'\t',delim); //Replace tabs with delimiter
+      std::replace(line.begin(),line.end(),'\r',delim); //Replace carriage_return with delim
       std::stringstream lineStream(line);
 
       std::string item;
       std::vector< std::string > items;
+      items.clear();
       while(std::getline(lineStream, item, delim)) {
         if (item.size() < 1){
           continue;
@@ -76,17 +71,17 @@ void Parser::loadBez(std::string filename, double param, bool adaptive) {
         numPatches = std::atoi(items[0].c_str());
       }
       else if (items.size() == 12) {
-        //std::cout << "Storing: " << line << std::endl;
+        // std::cout << "Storing: " << line << std::endl;
         for (int pointNum = 0; pointNum < 4; pointNum++){
-          double x = std::atof(items[pointNum].c_str());
-          double y = std::atof(items[pointNum+1].c_str());
-          double z = std::atof(items[pointNum+2].c_str());
+          double x = std::atof(items[pointNum*3].c_str());
+          double y = std::atof(items[pointNum*3+1].c_str());
+          double z = std::atof(items[pointNum*3+2].c_str());
           tempPatch[patchRow][pointNum] = Point(x,y,z);
         }
         patchRow++;
         if (patchRow==4) {
-          patches.push_back(BezPatch(tempPatch, param, adaptive));
-          //std::cout << "Patch created!" << std::endl;
+          local_patches.push_back(BezPatch(tempPatch, param, adaptive));
+          // std::cout << "Patch created!" << std::endl;
           patchRow = 0;
         }
       }
@@ -97,10 +92,11 @@ void Parser::loadBez(std::string filename, double param, bool adaptive) {
     }
     scnFile.close();
 
-    // if (numPatches!=patches.size()) {
-    //   std::cerr << "Incorrect number of patches." << std::endl;
-    // }
-    //return patches;
+    if (numPatches!=local_patches.size()) {
+      std::cerr << "Incorrect number of local_patches." << std::endl;
+    }
+    patches = local_patches;
+    //return local_patches;
 
   }
   else std::cout << "Unable to open file" << std::endl;
