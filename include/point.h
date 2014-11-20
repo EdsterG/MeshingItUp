@@ -23,7 +23,7 @@ class Point {
   Point(double x, double y, double z );
 
   // bracket operator
-  double& operator [] (size_t i);
+  double operator [] (size_t i) const;
 
   // create new point: point addition/subtraction
   Point operator + (const Point& v2) const;

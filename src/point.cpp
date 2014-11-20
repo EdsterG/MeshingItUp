@@ -15,7 +15,7 @@ Point::Point() { data[0]=0; data[1]=0; data[2]=0; }
 Point::Point(double x, double y, double z) { data[0]=x; data[1]=y; data[2]=z; }
 
 // bracket operator
-double& Point::operator [] (size_t i) { return data[i]; }
+double Point::operator [] (size_t i) const { return data[i]; }
 
 // create new point: point addition/subtraction
 Point Point::operator + (const Point& v2) const { return Point(data[0] + v2.data[0], data[1] + v2.data[1], data[2] + v2.data[2]); }

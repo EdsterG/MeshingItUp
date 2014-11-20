@@ -44,6 +44,7 @@ void Parser::parse(int* argc, char** argv) {
 void Parser::loadBez(std::string filename, double param, bool adaptive) {
   int numPatches;
   std::vector<BezPatch> patches;
+  Point tempPatch[4][4];
 
   std::ifstream scnFile(filename.c_str());
   if (scnFile.is_open()) {
@@ -75,19 +76,17 @@ void Parser::loadBez(std::string filename, double param, bool adaptive) {
         numPatches = std::atoi(items[0].c_str());
       }
       else if (items.size() == 12) {
-        Point tempPoint;
-        Point tempPatch[4][4];
-        std::cout << "Storing: " << line << std::endl;
+        //std::cout << "Storing: " << line << std::endl;
         for (int pointNum = 0; pointNum < 4; pointNum++){
-          for(int i = 0; i < 3; i++){
-            tempPoint[i] = std::atof(items[i+pointNum].c_str());
-          }
-          tempPatch[patchRow][pointNum] = tempPoint;
-          patches.push_back(BezPatch(tempPatch, param, adaptive));
+          double x = std::atof(items[pointNum].c_str());
+          double y = std::atof(items[pointNum+1].c_str());
+          double z = std::atof(items[pointNum+2].c_str());
+          tempPatch[patchRow][pointNum] = Point(x,y,z);
         }
         patchRow++;
         if (patchRow==4) {
-          std::cout << "Patch created!" << std::endl;
+          patches.push_back(BezPatch(tempPatch, param, adaptive));
+          //std::cout << "Patch created!" << std::endl;
           patchRow = 0;
         }
       }
