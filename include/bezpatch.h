@@ -10,6 +10,12 @@
 namespace stl
 {
 
+// point / derivative
+typedef struct {
+  Point p;
+  Point d;
+} PointDeriv ;
+
 class BezPatch {
  private:
   Point controls[4][4];
@@ -29,6 +35,12 @@ class BezPatch {
 
   void draw();
 
+  public:
+
+    BezPatch();
+
+    PointDeriv bezcurveinterp(Point (&curve)[4], double u);
+    Vertex bezpatchinterp(Point (&patch)[4][4], double u, double v);
 };
 
 }
