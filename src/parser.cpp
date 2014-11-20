@@ -35,12 +35,11 @@ void Parser::parse(int* argc, char** argv) {
     }
   }
 
-  loadBez(fileName);
-
+  loadBez(fileName,param,adaptive);
 
 }
 
-void Parser::loadBez(std::string filename) {
+void Parser::loadBez(std::string filename, double param, bool adaptive) {
   int numPatches;
   //std::vector<BezPatch> patches;
 
