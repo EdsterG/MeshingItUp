@@ -30,13 +30,14 @@ else
 }
 
 void BezPatch::uniformSampling() {
+  // TODO: Fix for number that don't evenly divide 1 (like 0.3)
+  int num_steps = (int)(1/param)+1;
   for (double u = 0; u <= 1; u+=param) {
     for (double v = 0; v <= 1; v+=param) {
       vertices.push_back(bezPatchInterp(u,v));
     }
   }
 
-  int num_steps = (int)(1/param);
   int indices[4];
   for (int i = 0; i < num_steps-1; i++) {
     for (int j = 0; j < num_steps-1; j++) {
@@ -206,25 +207,4 @@ void BezPatch::draw() {
     }
     glEnd();
   }
-  // glBegin(GL_TRIANGLES);
-  //   glColor3f(1.0,0.0,0.0);
-  //   glVertex3f(0.0,1,0.0);
-  //   glVertex3f(-1,-1,-1);
-  //   glVertex3f(1,-1,-1);
-
-  //   glColor3f(0.0,1.0,0.0);
-  //   glVertex3f(0.0,1,0.0);
-  //   glVertex3f(-1,-1,-1);
-  //   glVertex3f(0.0,-1,1);
-
-  //   glColor3f(0.0,0.0,1.0);
-  //   glVertex3f(0.0,1,0.0);
-  //   glVertex3f(1,-1,-1);
-  //   glVertex3f(0.0,-1,1);
-
-  //   glColor3f(1.0,1,1.0);
-  //   glVertex3f(-1,-1,-1);
-  //   glVertex3f(1,-1,-1);
-  //   glVertex3f(0.0,-1,1);
-  // glEnd();
 }

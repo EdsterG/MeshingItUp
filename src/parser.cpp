@@ -9,6 +9,8 @@
 using namespace stl;
 
 extern std::vector<BezPatch> patches;
+extern std::vector<std::vector<double> > trans;
+extern std::vector<std::vector<double> > rot;
 
 void Parser::parse(int* argc, char** argv) {
   bool adaptive = false;
@@ -95,6 +97,11 @@ void Parser::loadBez(std::string filename, double param, bool adaptive) {
     if (numPatches!=local_patches.size()) {
       std::cerr << "Incorrect number of local_patches." << std::endl;
     }
+
+    double translation[3] = {0,0,-5};
+    trans.push_back(std::vector<double>(translation,translation+3));
+    double rotation[3] = {0,0,0};
+    rot.push_back(std::vector<double>(rotation,rotation+3));
     patches = local_patches;
     //return local_patches;
 
