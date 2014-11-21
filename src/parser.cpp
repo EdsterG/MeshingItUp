@@ -98,7 +98,7 @@ void Parser::loadBez(std::string filename, double param, bool adaptive) {
       std::cerr << "Incorrect number of local_patches." << std::endl;
     }
 
-    double translation[3] = {0,0,-5};
+    double translation[3] = {0,0,-7};
     trans.push_back(std::vector<double>(translation,translation+3));
     double rotation[3] = {0,0,0};
     rot.push_back(std::vector<double>(rotation,rotation+3));

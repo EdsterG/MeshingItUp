@@ -92,31 +92,38 @@ void myDisplay() {
   // }
 
   // Start drawing
-  glPolygonMode(GL_FRONT_AND_BACK, GL_FILL);
-  glPolygonMode(GL_FRONT_AND_BACK, GL_LINE);
-
-
   glTranslatef(trans[current_obj][0], trans[current_obj][1], trans[current_obj][2]);
   glRotatef(rot[current_obj][0],1.0,0.0,0.0);
   glRotatef(rot[current_obj][1],0.0,1.0,0.0);
   glRotatef(rot[current_obj][2],0.0,0.0,1.0);
 
+  //FILLED
+  //glPolygonMode(GL_FRONT_AND_BACK, GL_FILL);
+
+  //WIRED
+  //glPolygonMode(GL_FRONT_AND_BACK, GL_LINE);
+
   for (int i=0; i<patches.size(); i++) {
     patches[i].draw();
   }
 
-// http://www.glprogramming.com/red/chapter14.html#name16
-// glEnable(GL_DEPTH_TEST);
-// glPolygonMode(GL_FRONT_AND_BACK, GL_LINE);
-// set_color(foreground);
-// draw_object_with_filled_polygons();
 
-// glPolygonMode(GL_FRONT_AND_BACK, GL_FILL);
-// glEnable(GL_POLYGON_OFFSET_FILL);
-// glPolygonOffset(1.0, 1.0);
-// set_color(background);
-// draw_object_with_filled_polygons();
-// glDisable(GL_POLYGON_OFFSET_FILL);
+  //HIDDEN
+  // http://www.glprogramming.com/red/chapter14.html#name16
+  // glPolygonMode(GL_FRONT_AND_BACK, GL_LINE);
+  // glColor3f(1.0,0.0,0.0);
+  // for (int i=0; i<patches.size(); i++) {
+  //   patches[i].draw();
+  // }
+
+  // glPolygonMode(GL_FRONT_AND_BACK, GL_FILL);
+  // glEnable(GL_POLYGON_OFFSET_FILL);
+  // glPolygonOffset(1.0, 1.0);
+  // glColor3f(0.0f, 0.0f, 0.0f); // Background color
+  // for (int i=0; i<patches.size(); i++) {
+  //   patches[i].draw();
+  // }
+  // glDisable(GL_POLYGON_OFFSET_FILL);
 
   // glBegin(GL_TRIANGLES);
   //   glColor3f(1.0,0.0,0.0);
