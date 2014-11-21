@@ -98,7 +98,7 @@ void myDisplay() {
   glRotatef(rot[current_obj][2],0.0,0.0,1.0);
 
   //FILLED
-  //glPolygonMode(GL_FRONT_AND_BACK, GL_FILL);
+  glPolygonMode(GL_FRONT_AND_BACK, GL_FILL);
 
   //WIRED
   //glPolygonMode(GL_FRONT_AND_BACK, GL_LINE);
