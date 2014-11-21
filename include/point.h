@@ -22,6 +22,16 @@ class Point {
   Point();
   Point(double x, double y, double z );
 
+  // sets
+  void setX(double x);
+  void setY(double y);
+  void setZ(double z);
+
+  // gets
+  double getX();
+  double getY();
+  double getZ();
+
   // bracket operator
   double operator [] (size_t i) const;
 
@@ -44,8 +54,9 @@ class Point {
   Point& operator *= (double c);
 
   // cross product
-  Point cross(const Point& v2) const;
+  Point cross(const Point& p2) const;
   double norm() const;
+  double dot(const Point& p2) const;
 
   // io stuff
   void stream_to(std::ostream& os) const;
