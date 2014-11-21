@@ -200,7 +200,7 @@ Vertex BezPatch::bezPatchInterp(double u, double v){
   n = (uPD.d).cross(vPD.d);
   n = n/n.norm();
 
-  return Vertex(uPD.p, n);
+  return Vertex(uPD.p, n, u, v);
 };
 
 void BezPatch::draw() {
