@@ -25,6 +25,9 @@
 #include "viewport.h"
 #include "parser.h"
 #include "bezpatch.h"
+#include "point.h"
+#include <Eigen/Core>
+#include <Eigen/LU>
 
 #define PI 3.14159265  // Should be used from mathlib
 //#define SPACEBAR ' '
@@ -57,6 +60,11 @@ std::vector<BezPatch> patches;
 std::vector<std::vector<double> > trans;
 std::vector<std::vector<double> > rot;
 int current_obj = 0;
+
+//
+int last_mx = 0, last_my = 0, cur_mx = 0, cur_my = 0;
+int arcball_on = false;
+
 
 //****************************************************
 // reshape viewport if the window is resized
@@ -102,7 +110,56 @@ void initScene(){
 
 }
 
+//****************************************************
+// function to process mouse input
+//***************************************************
 
+Point get_arcball_vector(int x, int y) {
+  Point P = Point(1.0*x/viewport.getW()*2 - 1.0,
+        1.0*y/viewport.getH()*2 - 1.0,
+        0);
+  P.setY(-1*P[1]);
+  float OP_squared = P[0] * P[0] + P[1] * P[1];
+  if (OP_squared <= 1*1)
+    P.setY(sqrt(1*1 - OP_squared));  // Pythagore
+  else
+    P.norm();  // nearest point
+  return P;
+}
+
+void myMouse(int button, int state, int x, int y) {
+  //Do something later.
+  //Possible button inputs: GLUT_LEFT_BUTTON, GLUT_RIGHT_BUTTON, or GLUT_MIDDLE_BUTTON
+  //Possible state inputs: GLUT_UP or GLUT_DOWN
+  // glutPostRedisplay();
+  if (button == GLUT_LEFT_BUTTON && state == GLUT_DOWN) {
+    arcball_on = true;
+    last_mx = cur_mx = x;
+    last_my = cur_my = y;
+  } else {
+    arcball_on = false;
+  }
+}
+
+
+void myMouseMotion(int mouseX, int mouseY) {
+  // // Location of the center of pixel relative to center of sphere
+  // double radius = mouseLightRadius;
+  // double x = (mouseX-viewport.getW()/2.0);
+  // double y = -(mouseY-viewport.getH()/2.0);
+  // double dist = sqrt(std::pow(x,2) + std::pow(y,2));
+  // if (dist > radius) { dist = radius;}
+  // double z = sqrt(radius*radius-dist*dist);
+  // if (lights.size()>0){
+  //   lights[mouseLight]->moveLight(Vector(x,y,z));
+  // }
+
+  // glutPostRedisplay();
+  if (arcball_on) {  // if left button is pressed
+    cur_mx = mouseX;
+    cur_my = mouseY;
+  }
+}
 //****************************************************
 // function that does the actual drawing of stuff
 //***************************************************
@@ -163,7 +220,19 @@ void myDisplay() {
 
   //-----------------------------------------------------------------------
 
-  glFlush();
+  /* onIdle() */
+  if (cur_mx != last_mx || cur_my != last_my) {
+    Point va = get_arcball_vector(last_mx, last_my);
+    Point vb = get_arcball_vector( cur_mx,  cur_my);
+    float angle = acos(fmin(1.0f, va.dot(vb)));
+    Point axis_in_camera_coord = va.cross(vb);
+    // Eigen::Matrix3d camera2object = (std::transform[MODE_CAMERA] * Eigen::Matrix3d(mesh.object2world)).inverse;
+    // Point axis_in_object_coord = camera2object * axis_in_camera_coord;
+  // mesh.object2world = glm::rotate(mesh.object2world, glm::degrees(angle), axis_in_object_coord);
+  // last_mx = cur_mx;
+  // last_my = cur_my;
+}
+  //glFlush();
   glutSwapBuffers();					// swap buffers (we earlier set double buffer)
 }
 
