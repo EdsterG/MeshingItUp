@@ -22,7 +22,13 @@ Eddie Groshev cs184-en
 // stl :: String Theory Labs (Taking over a universe near you)
 using namespace stl;
 
-BezPatch::BezPatch(Point (&patch_)[4][4], double param_, bool adaptive) : patch(patch_), param(param_) {
+BezPatch::BezPatch(Point (&patch_)[4][4], double param_, bool adaptive) : param(param_) {
+for (int i=0; i<4; i++) {
+  for (int j=0; j<4; j++) {
+    patch[i][j]=patch_[i][j];
+  }
+}
+
 if (adaptive)
   adaptiveSampling();
 else
