@@ -21,8 +21,10 @@ class BezPatch {
   Point patch[4][4];
   double param;
 
-  std::vector<std::vector<double> > faces;
+  std::vector<std::vector<int> > faces;
   std::vector<Vertex> vertices;
+
+  int index;
 
   void uniformSampling();
   void adaptiveSampling();
@@ -34,6 +36,8 @@ class BezPatch {
   PointDeriv bezCurveInterp(Point (&curve)[4], double u);
   Vertex bezPatchInterp(double u, double v);
   Point secondDeriv(Point (&p)[4], double u);
+  void setIndex(int index);
+  int getIndex();
   void draw();
 
 };

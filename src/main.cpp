@@ -25,6 +25,7 @@
 #include "viewport.h"
 #include "parser.h"
 #include "bezpatch.h"
+#include "objmodel.h"
 #include "point.h"
 #include <Eigen/Core>
 #include <Eigen/LU>
@@ -56,15 +57,31 @@ Mode mode = FILLED;
 // Global Variables
 //****************************************************
 Viewport  viewport;
-std::vector<BezPatch> patches;
+std::vector<std::vector<BezPatch> > bezObjs;
+std::vector<ObjModel> objModels;
+std::vector<std::vector<double> > obj_centers;
 std::vector<std::vector<double> > trans;
 std::vector<std::vector<double> > rot;
 int current_obj = 0;
 
-//
-int last_mx = 0, last_my = 0, cur_mx = 0, cur_my = 0;
+int prev_x = 0;
+int prev_y = 0;
+int curr_x = 0;
+int curr_y = 0;
 int arcball_on = false;
 
+Point get_arcball_vector(int x, int y) {
+  Point point = Point((double)x/viewport.getW()*2 - 1.0,
+        (double)y/viewport.getH()*2 - 1.0,
+        0);
+  point.setY(-point[1]);
+  float norm_squared = point.dot(point);
+  if (norm_squared <= 1)
+    point.setY(sqrt(1 - norm_squared));  // Pythagore
+  else
+    point = point/point.norm();  // nearest point
+  return point;
+}
 
 //****************************************************
 // reshape viewport if the window is resized
@@ -111,79 +128,39 @@ void initScene(){
 }
 
 //****************************************************
-// function to process mouse input
+// functions that do the actual drawing of stuff
 //***************************************************
-
-Point get_arcball_vector(int x, int y) {
-  Point P = Point(1.0*x/viewport.getW()*2 - 1.0,
-        1.0*y/viewport.getH()*2 - 1.0,
-        0);
-  P.setY(-1*P[1]);
-  float OP_squared = P[0] * P[0] + P[1] * P[1];
-  if (OP_squared <= 1*1)
-    P.setY(sqrt(1*1 - OP_squared));  // Pythagore
-  else
-    P.norm();  // nearest point
-  return P;
-}
-
-void myMouse(int button, int state, int x, int y) {
-  //Do something later.
-  //Possible button inputs: GLUT_LEFT_BUTTON, GLUT_RIGHT_BUTTON, or GLUT_MIDDLE_BUTTON
-  //Possible state inputs: GLUT_UP or GLUT_DOWN
-  // glutPostRedisplay();
-  if (button == GLUT_LEFT_BUTTON && state == GLUT_DOWN) {
-    arcball_on = true;
-    last_mx = cur_mx = x;
-    last_my = cur_my = y;
-  } else {
-    arcball_on = false;
-  }
-}
-
-
-void myMouseMotion(int mouseX, int mouseY) {
-  // // Location of the center of pixel relative to center of sphere
-  // double radius = mouseLightRadius;
-  // double x = (mouseX-viewport.getW()/2.0);
-  // double y = -(mouseY-viewport.getH()/2.0);
-  // double dist = sqrt(std::pow(x,2) + std::pow(y,2));
-  // if (dist > radius) { dist = radius;}
-  // double z = sqrt(radius*radius-dist*dist);
-  // if (lights.size()>0){
-  //   lights[mouseLight]->moveLight(Vector(x,y,z));
+void drawObjects() {
+  // for (int k=0; k<bezObjs.size(); k++){
+  //   glLoadIdentity(); // make sure transformation is "zero'd"
+  //   glTranslatef(trans[k][0], trans[k][1], trans[k][2]);
+  //   glRotatef(rot[k][0],1.0,0.0,0.0);
+  //   glRotatef(rot[k][1],0.0,1.0,0.0);
+  //   glRotatef(rot[k][2],0.0,0.0,1.0);
+  //   // glTranslatef(-obj_centers[k][0], -obj_centers[k][1], -obj_centers[k][2]); 
+  //   for (int i=0; i<bezObjs[k].size(); i++) {
+  //     bezObjs[k][i].draw();
+  //   }
   // }
-
-  // glutPostRedisplay();
-  if (arcball_on) {  // if left button is pressed
-    cur_mx = mouseX;
-    cur_my = mouseY;
+  for (int k=0; k<objModels.size(); k++) {
+    glLoadIdentity(); // make sure transformation is "zero'd"
+    glTranslatef(trans[k][0], trans[k][1], trans[k][2]);
+    glRotatef(rot[k][0],1.0,0.0,0.0);
+    glRotatef(rot[k][1],0.0,1.0,0.0);
+    glRotatef(rot[k][2],0.0,0.0,1.0);
+    objModels[k].draw();
   }
 }
-//****************************************************
-// function that does the actual drawing of stuff
-//***************************************************
+
 void myDisplay() {
 
   glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);                // clear the color buffer (sets everything to black), and the depth buffer.
 
   glMatrixMode(GL_MODELVIEW);			        // indicate we are specifying camera transformations
-  glLoadIdentity();				        // make sure transformation is "zero'd"
-
 
   // Code to draw objects
   if (shading==FLAT) glShadeModel(GL_FLAT);
   else glShadeModel(GL_SMOOTH);
-  //-----------------------------------------------------------------------
-  // if (!fileName.empty()){
-  //   viewport.beginImage();
-  // }
-
-  // Start drawing
-  glTranslatef(trans[current_obj][0], trans[current_obj][1], trans[current_obj][2]);
-  glRotatef(rot[current_obj][0],1.0,0.0,0.0);
-  glRotatef(rot[current_obj][1],0.0,1.0,0.0);
-  glRotatef(rot[current_obj][2],0.0,0.0,1.0);
 
   if (mode==FILLED) {
     glEnable(GL_LIGHTING);
@@ -194,9 +171,7 @@ void myDisplay() {
     glPolygonMode(GL_FRONT_AND_BACK, GL_LINE);
   }
   glColor3f(1.0,1.0,1.0);
-  for (int i=0; i<patches.size(); i++) {
-    patches[i].draw();
-  }
+  drawObjects();
 
   if (mode==HIDDEN) {
     // http://www.glprogramming.com/red/chapter14.html#name16
@@ -204,38 +179,29 @@ void myDisplay() {
     glEnable(GL_POLYGON_OFFSET_FILL);
     glPolygonOffset(1.0, 1.0);
     glColor3f(0.0f, 0.0f, 0.0f); // Background color
-    for (int i=0; i<patches.size(); i++) {
-      patches[i].draw();
-    }
+    drawObjects();
     glDisable(GL_POLYGON_OFFSET_FILL);
   }
 
   glutPostRedisplay();
 
-  // if (!fileName.empty()){
-  //   viewport.endImage();
-  //   viewport.writeImage(fileName.c_str());
-  //   exit(0);
-  // }
-
   //-----------------------------------------------------------------------
 
   /* onIdle() */
-  if (cur_mx != last_mx || cur_my != last_my) {
-    Point va = get_arcball_vector(last_mx, last_my);
-    Point vb = get_arcball_vector( cur_mx,  cur_my);
+  if (curr_x != prev_x || curr_y != prev_y) {
+    Point va = get_arcball_vector(prev_x, prev_y);
+    Point vb = get_arcball_vector( curr_x,  curr_y);
     float angle = acos(fmin(1.0f, va.dot(vb)));
     Point axis_in_camera_coord = va.cross(vb);
     // Eigen::Matrix3d camera2object = (std::transform[MODE_CAMERA] * Eigen::Matrix3d(mesh.object2world)).inverse;
     // Point axis_in_object_coord = camera2object * axis_in_camera_coord;
   // mesh.object2world = glm::rotate(mesh.object2world, glm::degrees(angle), axis_in_object_coord);
-  // last_mx = cur_mx;
-  // last_my = cur_my;
+  // prev_x = curr_x;
+  // prev_y = curr_y;
 }
   //glFlush();
   glutSwapBuffers();					// swap buffers (we earlier set double buffer)
 }
-
 
 //****************************************************
 // function to process keyboard input
@@ -316,6 +282,13 @@ void myMouse(int button, int state, int x, int y) {
   //Possible button inputs: GLUT_LEFT_BUTTON, GLUT_RIGHT_BUTTON, or GLUT_MIDDLE_BUTTON
   //Possible state inputs: GLUT_UP or GLUT_DOWN
   // glutPostRedisplay();
+  if (button == GLUT_LEFT_BUTTON && state == GLUT_DOWN) {
+    arcball_on = true;
+    prev_x = curr_x = x;
+    prev_y = curr_y = y;
+  } else {
+    arcball_on = false;
+  }
 }
 
 void myMouseMotion(int mouseX, int mouseY) {
@@ -331,48 +304,10 @@ void myMouseMotion(int mouseX, int mouseY) {
   // }
 
   // glutPostRedisplay();
-}
-
-//Functions to test our code
-void test() {
-  // std::cout << std::endl << "BEGIN TEST FUNCTION" << std::endl;
-  // viewport.beginImage();
-  // myDisplay();
-  // viewport.endImage();
-  // viewport.writeImage("test.png");
-
-  // //Test Color class
-  // Color c1 = Color();
-  // assert(c1.getR()==0.0 && c1.getG()==0.0 && c1.getB()==0.0);
-  // std::cout << c1 << std::endl;
-  // Color c2 = Color(0.1,0.2,0.5);
-  // assert(c2.getR()==0.1 && c2.getG()==0.2 && c2.getB()==0.5);
-  // std::cout << c2 << std::endl;
-  // Color c3 = c2+c2+c2;
-  // std::cout << c3 << std::endl;
-
-  // //Test Vector class
-  // Vector v1 = Vector();
-  // Vector v2 = Vector(2,1,2);
-  // Vector v3 = Vector(9);
-  // Vector v4 = Vector(1,1,1);
-  // Vector v5 = Vector(1,-1,1);
-  // std::cout << v1 << std::endl;
-  // std::cout << v2 << std::endl;
-  // std::cout << v3 << std::endl;
-  // std::cout << v4.cross(v5) << std::endl;
-  // std::cout << v5.cross(v4) << std::endl;
-  // std::cout << v2.dot(v3) << std::endl;
-  // std::cout << v2.magnitude() << std::endl;
-  // std::cout << v2/v2.magnitude() << std::endl;
-
-  // //Test Light class
-  // PointLight pl1 = PointLight(Vector(11,12,13));
-  // DirectionLight dl1 = DirectionLight(Vector(14,15,16));
-  // std::cout << pl1 << std::endl;
-  // std::cout << dl1 << std::endl;
-
-  // std::cout << "END TEST FUNCTION" << std::endl << std::endl;
+  if (arcball_on) {  // if left button is pressed
+    curr_x = mouseX;
+    curr_y = mouseY;
+  }
 }
 
 //****************************************************

@@ -22,7 +22,7 @@ Eddie Groshev cs184-en
 // stl :: String Theory Labs (Taking over a universe near you)
 using namespace stl;
 
-BezPatch::BezPatch(Point (&patch_)[4][4], double param_, bool adaptive) : param(param_) {
+BezPatch::BezPatch(Point (&patch_)[4][4], double param_, bool adaptive) : param(param_){
 for (int i=0; i<4; i++) {
   for (int j=0; j<4; j++) {
     patch[i][j]=patch_[i][j];
@@ -59,8 +59,8 @@ void BezPatch::uniformSampling() {
       indices[2] = (i+1)*num_steps+j;
       indices[3] = indices[2]+1;
 
-      faces.push_back(std::vector<double>(indices,indices+3));
-      faces.push_back(std::vector<double>(indices+1,indices+4));
+      faces.push_back(std::vector<int>(indices,indices+3));
+      faces.push_back(std::vector<int>(indices+1,indices+4));
     }
   }
 
@@ -93,7 +93,7 @@ void BezPatch::adaptiveSplit(int index1, int index2, int index3) {
 
   if (e1+e2+e3 == 0) {
     int indices[3] = {index1,index2,index3};
-    faces.push_back(std::vector<double>(indices,indices+3));
+    faces.push_back(std::vector<int>(indices,indices+3));
   }
   else if (e1+e2+e3 == 1){
     if (e1) {
@@ -214,13 +214,16 @@ Point BezPatch::secondDeriv(Point (&p)[4], double u) {
   return ((p[2]-p[1]*2+p[0])*(1-u) + (p[3]-p[2]*2+p[1])*u)*6;
 }
 
+void BezPatch::setIndex(int index_) { index=index_;}
+int BezPatch::getIndex() {return index;}
+
 void BezPatch::draw() {
   for (int i=0; i < faces.size(); i++) {
     glBegin(GL_TRIANGLES);
     for (int k=0; k < faces[i].size(); k++){
       int index = faces[i][k];
       Vertex v = vertices[index];
-      glNormal3f(v.normal()[0], v.normal()[1], v.normal()[2]);
+      if (v.hasNormal()) glNormal3f(v.normal()[0], v.normal()[1], v.normal()[2]);
       glVertex3f(v.pos()[0], v.pos()[1], v.pos()[2]);
     }
     glEnd();
