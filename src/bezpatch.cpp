@@ -22,7 +22,7 @@ Eddie Groshev cs184-en
 // stl :: String Theory Labs (Taking over a universe near you)
 using namespace stl;
 
-BezPatch::BezPatch(Point (&patch_)[4][4], double param_, bool adaptive) : param(param_) {
+BezPatch::BezPatch(Point (&patch_)[4][4], double param_, bool adaptive) : param(param_){
 for (int i=0; i<4; i++) {
   for (int j=0; j<4; j++) {
     patch[i][j]=patch_[i][j];
@@ -36,10 +36,17 @@ else
 }
 
 void BezPatch::uniformSampling() {
-  // TODO: Fix for number that don't evenly divide 1 (like 0.3)
-  int num_steps = (int)(1/param)+1;
-  for (double u = 0; u <= 1; u+=param) {
-    for (double v = 0; v <= 1; v+=param) {
+  int num_steps = (int)(1/param);
+  if (1-num_steps*param < 0.0000001) {
+    num_steps+=1;
+  } else {
+    num_steps+=2;
+  }
+
+  for (double u = 0; u <= 1 || u-param<1; u+=param) {
+    if (u>1) u=1;
+    for (double v = 0; v <= 1 || v-param<1; v+=param) {
+      if (v>1) v=1;
       vertices.push_back(bezPatchInterp(u,v));
     }
   }
@@ -52,8 +59,8 @@ void BezPatch::uniformSampling() {
       indices[2] = (i+1)*num_steps+j;
       indices[3] = indices[2]+1;
 
-      faces.push_back(std::vector<double>(indices,indices+3));
-      faces.push_back(std::vector<double>(indices+1,indices+4));
+      faces.push_back(std::vector<int>(indices,indices+3));
+      faces.push_back(std::vector<int>(indices+1,indices+4));
     }
   }
 
@@ -64,7 +71,7 @@ void BezPatch::adaptiveSampling() {
   vertices.push_back(bezPatchInterp(1,0));
   vertices.push_back(bezPatchInterp(1,1));
 
-  adaptiveSplit(0,1,2);
+  adaptiveSplit(2,0,1);
   adaptiveSplit(1,3,2);
 }
 
@@ -86,26 +93,26 @@ void BezPatch::adaptiveSplit(int index1, int index2, int index3) {
 
   if (e1+e2+e3 == 0) {
     int indices[3] = {index1,index2,index3};
-    faces.push_back(std::vector<double>(indices,indices+3));
+    faces.push_back(std::vector<int>(indices,indices+3));
   }
   else if (e1+e2+e3 == 1){
     if (e1) {
       vertices.push_back(p1);
       int p1_index = vertices.size()-1;
       adaptiveSplit(index1,p1_index,index3);
-      adaptiveSplit(p1_index,index2,index3);
+      adaptiveSplit(index3,p1_index,index2);
     }
     else if (e2) {
       vertices.push_back(p2);
       int p2_index = vertices.size()-1;
-      adaptiveSplit(index1,index2,p2_index);
+      adaptiveSplit(index2,p2_index,index1);
       adaptiveSplit(index1,p2_index,index3);
     }
     else {
       vertices.push_back(p3);
       int p3_index = vertices.size()-1;
-      adaptiveSplit(index1,index2,p3_index);
-      adaptiveSplit(p3_index,index2,index3);
+      adaptiveSplit(index3,p3_index,index2);
+      adaptiveSplit(index2,p3_index,index1);
     }
   }
   else if (e1+e2+e3 == 2){
@@ -123,18 +130,18 @@ void BezPatch::adaptiveSplit(int index1, int index2, int index3) {
       vertices.push_back(p3);
       int p3_index = vertices.size()-1;
       int p2_index = p3_index-1;
-      adaptiveSplit(index1,index2,p2_index);
-      adaptiveSplit(index1,p2_index,p3_index);
-      adaptiveSplit(p3_index,p2_index,index3);
+      adaptiveSplit(index2,p2_index,index1);
+      adaptiveSplit(p2_index,p3_index,index1);
+      adaptiveSplit(p2_index,index3,p3_index);
     }
     else {
       vertices.push_back(p1);
       vertices.push_back(p3);
       int p3_index = vertices.size()-1;
       int p1_index = p3_index-1;
-      adaptiveSplit(index1,p1_index,p3_index);
-      adaptiveSplit(p1_index,index2,p3_index);
-      adaptiveSplit(p3_index,index2,index3);
+      adaptiveSplit(index3,p3_index,index2);
+      adaptiveSplit(p3_index,p1_index,index2);
+      adaptiveSplit(p3_index,index1,p1_index);
     }
   } else {
     vertices.push_back(p1);
@@ -200,15 +207,23 @@ Vertex BezPatch::bezPatchInterp(double u, double v){
   n = (uPD.d).cross(vPD.d);
   n = n/n.norm();
 
-  return Vertex(uPD.p, n);
+  return Vertex(uPD.p, n, u, v);
 };
+
+Point BezPatch::secondDeriv(Point (&p)[4], double u) {
+  return ((p[2]-p[1]*2+p[0])*(1-u) + (p[3]-p[2]*2+p[1])*u)*6;
+}
+
+void BezPatch::setIndex(int index_) { index=index_;}
+int BezPatch::getIndex() {return index;}
 
 void BezPatch::draw() {
   for (int i=0; i < faces.size(); i++) {
     glBegin(GL_TRIANGLES);
     for (int k=0; k < faces[i].size(); k++){
-      Vertex v = vertices[faces[i][k]];
-      glNormal3f(v.normal()[0], v.normal()[1], v.normal()[2]);
+      int index = faces[i][k];
+      Vertex v = vertices[index];
+      if (v.hasNormal()) glNormal3f(v.normal()[0], v.normal()[1], v.normal()[2]);
       glVertex3f(v.pos()[0], v.pos()[1], v.pos()[2]);
     }
     glEnd();

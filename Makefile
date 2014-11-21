@@ -1,11 +1,11 @@
 CC = g++
 ifeq ($(shell sw_vers 2>/dev/null | grep Mac | awk '{ print $$2}'),Mac)
-  CFLAGS = -g -DGL_GLEXT_PROTOTYPES -I./include/ -I ./eigen/ -I/usr/X11/include -DOSX
+  CFLAGS = -g -DGL_GLEXT_PROTOTYPES -I./include/ -I./eigen/ -I/usr/X11/include -DOSX
   LDFLAGS = -framework GLUT -framework OpenGL \
       -L"/System/Library/Frameworks/OpenGL.framework/Libraries" \
       -lGL -lGLU -lm -lstdc++
 else
-  CFLAGS = -g -std=c++0x -DGL_GLEXT_PROTOTYPES -I./include/ -Iglut-3.7.6-bin
+  CFLAGS = -g -std=c++0x -DGL_GLEXT_PROTOTYPES -I./include/ -I./eigen/ -Iglut-3.7.6-bin
   LDFLAGS = -lglut -lGLU
 endif
 
@@ -16,7 +16,7 @@ endif
 #-g -Wall
 
 OUTPUT = as3
-SOURCES = src/main.cpp src/viewport.cpp src/parser.cpp src/point.cpp src/vertex.cpp src/bezpatch.cpp
+SOURCES = src/main.cpp src/viewport.cpp src/parser.cpp src/point.cpp src/vertex.cpp src/bezpatch.cpp src/objmodel.cpp
 #lodepng/lodepng.cpp
 #SOURCES = $(shell find . -name *.cpp)
 #SOURCES=$(wildcard src/*.cpp)

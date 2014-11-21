@@ -9,10 +9,12 @@ Eddie Groshev cs184-en
 // stl :: String Theory Labs (Taking over a universe near you)
 using namespace stl;
 
-Vertex::Vertex(const Point& p_, const Point& n_) : p(p_), n(n_), u(-1), v(-1) {}
-Vertex::Vertex(const Point& p_, const Point& n_, double u_, double v_) : p(p_), n(n_), u(u_), v(v_) {}
+Vertex::Vertex(const Point& p_) : p(p_), normalSet(false), u(-1), v(-1) {}
+Vertex::Vertex(const Point& p_, const Point& n_) : p(p_), normalSet(true), n(n_), u(-1), v(-1) {}
+Vertex::Vertex(const Point& p_, const Point& n_, double u_, double v_) : p(p_), normalSet(true), n(n_), u(u_), v(v_) {}
 const Point& Vertex::pos() {return p;}
 const Point& Vertex::normal() {return n;}
+const bool Vertex::hasNormal() {return normalSet;}
 const double Vertex::getU() {return u;}
 const double Vertex::getV() {return v;}
 

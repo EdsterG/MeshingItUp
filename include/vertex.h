@@ -10,6 +10,15 @@ Eddie Groshev cs184-en
 #include "point.h"
 #include <iostream>
 
+// struct Vertex
+// {
+//     float position[3];
+//     float normal[3];
+//     float texCoord[2];
+//     float tangent[4];
+//     float bitangent[3];
+// };
+
 // stl :: String Theory Labs (Taking over a universe near you) 
 namespace stl
 {
