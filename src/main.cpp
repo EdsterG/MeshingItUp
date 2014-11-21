@@ -36,6 +36,19 @@
 
 using namespace stl;
 
+enum Shading {
+  FLAT,
+  SMOOTH
+};
+Shading shading = SMOOTH;
+
+enum Mode {
+  FILLED,
+  WIREFRAME,
+  HIDDEN
+};
+Mode mode = FILLED;
+
 //****************************************************
 // Global Variables
 //****************************************************
@@ -44,7 +57,6 @@ std::vector<BezPatch> patches;
 std::vector<std::vector<double> > trans;
 std::vector<std::vector<double> > rot;
 int current_obj = 0;
-
 
 //****************************************************
 // reshape viewport if the window is resized
@@ -80,7 +92,6 @@ void initScene(){
   GLfloat mat_shininess[] = { 50.0 };
   GLfloat light_position[] = { 1.0, 1.0, 1.0, 0.0 };
   glClearColor (0.0, 0.0, 0.0, 0.0);
-  glShadeModel (GL_SMOOTH);
 
   glMaterialfv(GL_FRONT, GL_SPECULAR, mat_specular);
   glMaterialfv(GL_FRONT, GL_SHININESS, mat_shininess);
@@ -88,7 +99,6 @@ void initScene(){
 
   glEnable(GL_LIGHTING);
   glEnable(GL_LIGHT0);
-  glEnable(GL_DEPTH_TEST);
 
 }
 
@@ -105,6 +115,8 @@ void myDisplay() {
 
 
   // Code to draw objects
+  if (shading==FLAT) glShadeModel(GL_FLAT);
+  else glShadeModel(GL_SMOOTH);
   //-----------------------------------------------------------------------
   // if (!fileName.empty()){
   //   viewport.beginImage();
@@ -116,57 +128,32 @@ void myDisplay() {
   glRotatef(rot[current_obj][1],0.0,1.0,0.0);
   glRotatef(rot[current_obj][2],0.0,0.0,1.0);
 
-  //FILLED
-  glPolygonMode(GL_FRONT_AND_BACK, GL_FILL);
-
-  //WIRED
-  //glPolygonMode(GL_FRONT_AND_BACK, GL_LINE);
-
+  if (mode==FILLED) {
+    glEnable(GL_LIGHTING);
+    glPolygonMode(GL_FRONT_AND_BACK, GL_FILL);
+  }
+  else {
+    glDisable(GL_LIGHTING);
+    glPolygonMode(GL_FRONT_AND_BACK, GL_LINE);
+  }
+  glColor3f(1.0,1.0,1.0);
   for (int i=0; i<patches.size(); i++) {
     patches[i].draw();
   }
 
+  if (mode==HIDDEN) {
+    // http://www.glprogramming.com/red/chapter14.html#name16
+    glPolygonMode(GL_FRONT_AND_BACK, GL_FILL);
+    glEnable(GL_POLYGON_OFFSET_FILL);
+    glPolygonOffset(1.0, 1.0);
+    glColor3f(0.0f, 0.0f, 0.0f); // Background color
+    for (int i=0; i<patches.size(); i++) {
+      patches[i].draw();
+    }
+    glDisable(GL_POLYGON_OFFSET_FILL);
+  }
 
-  //HIDDEN
-  // http://www.glprogramming.com/red/chapter14.html#name16
-  // glPolygonMode(GL_FRONT_AND_BACK, GL_LINE);
-  // glColor3f(1.0,0.0,0.0);
-  // for (int i=0; i<patches.size(); i++) {
-  //   patches[i].draw();
-  // }
-
-  // glPolygonMode(GL_FRONT_AND_BACK, GL_FILL);
-  // glEnable(GL_POLYGON_OFFSET_FILL);
-  // glPolygonOffset(1.0, 1.0);
-  // glColor3f(0.0f, 0.0f, 0.0f); // Background color
-  // for (int i=0; i<patches.size(); i++) {
-  //   patches[i].draw();
-  // }
-  // glDisable(GL_POLYGON_OFFSET_FILL);
-
-  // glBegin(GL_TRIANGLES);
-  //   glColor3f(1.0,0.0,0.0);
-  //   glVertex3f(0.0,1,0.0);
-  //   glVertex3f(-1,-1,-1);
-  //   glVertex3f(1,-1,-1);
-
-  //   glColor3f(0.0,1.0,0.0);
-  //   glVertex3f(0.0,1,0.0);
-  //   glVertex3f(-1,-1,-1);
-  //   glVertex3f(0.0,-1,1);
-
-  //   glColor3f(0.0,0.0,1.0);
-  //   glVertex3f(0.0,1,0.0);
-  //   glVertex3f(1,-1,-1);
-  //   glVertex3f(0.0,-1,1);
-
-  //   glColor3f(1.0,1,1.0);
-  //   glVertex3f(-1,-1,-1);
-  //   glVertex3f(1,-1,-1);
-  //   glVertex3f(0.0,-1,1);
-  // glEnd();
-
-  //glutPostRedisplay();
+  glutPostRedisplay();
 
   // if (!fileName.empty()){
   //   viewport.endImage();
@@ -176,7 +163,7 @@ void myDisplay() {
 
   //-----------------------------------------------------------------------
 
-  //glFlush();
+  glFlush();
   glutSwapBuffers();					// swap buffers (we earlier set double buffer)
 }
 
@@ -190,20 +177,24 @@ void myKeyboard(unsigned char key, int x, int y) {
   }
   if (key == 's') {
     //toggle between flat and smooth shading
+    if (shading==SMOOTH) shading=FLAT;
+    else shading=SMOOTH;
   }
   if (key == 'w') {
     //toggle between filled and wireframe mode
+    if (mode!=WIREFRAME) mode=WIREFRAME;
+    else mode=FILLED;
   }
   if (key == 'h') {
-    //Optional: toggle between filled and hidden-line mode.
+    //toggle between filled and hidden-line mode
+    if (mode!=HIDDEN) mode=HIDDEN;
+    else mode=WIREFRAME;
   }
   if (key == '+') {
     trans[current_obj][2]+=0.1;
-    std::cout << "ZOMM IN" << std::endl;
   }
   if (key == '-') {
     trans[current_obj][2]-=0.1;
-    std::cout << "ZOOM OUT" << std::endl;
   }
 
   glutPostRedisplay();
@@ -216,19 +207,15 @@ void myArrowKeys(int key, int x, int y) {
     switch(key) {
       case GLUT_KEY_UP:
         trans[current_obj][0]+=0.1;
-        std::cout << "SHIFT+UP" << std::endl;
         break;
       case GLUT_KEY_DOWN:
         trans[current_obj][0]-=0.1;
-        std::cout << "SHIFT+DOWN" << std::endl;
         break;
       case GLUT_KEY_LEFT:
         trans[current_obj][1]-=0.1;
-        std::cout << "SHIFT+LEFT" << std::endl;
         break;
       case GLUT_KEY_RIGHT:
         trans[current_obj][1]+=0.1;
-        std::cout << "SHIFT+RIGHT" << std::endl;
         break;
     }
   } else {
@@ -236,19 +223,15 @@ void myArrowKeys(int key, int x, int y) {
     switch(key) {
       case GLUT_KEY_UP:
         rot[current_obj][0]+=2;
-        std::cout << "UP" << std::endl;
         break;
       case GLUT_KEY_DOWN:
         rot[current_obj][0]-=2;
-        std::cout << "DOWN" << std::endl;
         break;
       case GLUT_KEY_LEFT:
         rot[current_obj][1]-=2;
-        std::cout << "LEFT" << std::endl;
         break;
       case GLUT_KEY_RIGHT:
         rot[current_obj][1]+=2;
-        std::cout << "RIGHT" << std::endl;
         break;
     }
   }
@@ -328,6 +311,10 @@ void test() {
 //****************************************************
 int main(int argc, char *argv[]) {
 
+  //This parses the arguments and sets up the global variables
+  Parser argParser = Parser();
+  argParser.parse(&argc, argv);
+
   //This initializes glut
   glutInit(&argc, argv);
 
@@ -341,10 +328,6 @@ int main(int argc, char *argv[]) {
   glutInitWindowSize(viewport.getW(), viewport.getH());
   glutInitWindowPosition(0,0);
   glutCreateWindow(argv[0]);
-
-  //This parses the arguments and sets up the global variables
-  Parser argParser = Parser();
-  argParser.parse(&argc, argv);
 
   initScene();							// quick function to set up scene
 
