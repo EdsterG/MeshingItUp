@@ -2,6 +2,7 @@
 
 #include <fstream>
 #include <sstream>
+#include <algorithm>
 #include <vector>
 #include "assert.h"
 #include "point.h"
@@ -213,7 +214,7 @@ void Parser::loadBez(std::string filename, double param, bool adaptive) {
         if (patchRow==4) {
           patches.push_back(BezPatch(tempPatch, param, adaptive));
 
-          patches.back().setIndex(obj_num); // Object indexing is a lazy hack in place of a model class interface
+          patches.back().setIndex(obj_num); // Object indexing is a "before deadline" hack in place of a model class interface
           // std::cout << "Patch created!" << std::endl;
           patchRow = 0;
         }
@@ -270,7 +271,7 @@ void Parser::saveObj(std::string filename) {
   for (int i=0; i<faces.size(); i++){
     objFile << "f";
     for (int j=0; j<3; j++){
-      objFile << " " << faces[i][j] << "//" << faces[i][j];
+      objFile << " " << faces[i][j]+1 << "//" << faces[i][j]+1; // The +1 is a "before deadline" hack to fix offset issues introduces above.
     }
     objFile << "\n";
   }
@@ -422,7 +423,7 @@ void Parser::loadOBJ(std::string filename) {
   assert(("facesToPoints and facesToNormals should contain the SAME number of face!",facesToPoints->size()==facesToNormals->size()));
   objModels.push_back(ObjModel(points,facesToPoints,vertNormals,facesToNormals));
 
-  objModels.back().setIndex(obj_num++); // Object indexing is a lazy hack in place of a model class interface
+  objModels.back().setIndex(obj_num++); // Object indexing is a "before deadline" hack in place of a model class interface
 }
 
 // void Parser::loadMTL(std::string filename) {
