@@ -182,7 +182,7 @@ void drawObjects() {
     glRotatef(rot[obj_index][0],1.0,0.0,0.0);
     glRotatef(rot[obj_index][1],0.0,1.0,0.0);
     glRotatef(rot[obj_index][2],0.0,0.0,1.0);
-    glTranslatef(-obj_centers[obj_index][0], -obj_centers[obj_index][1], -obj_centers[obj_index][2]); 
+    glTranslatef(-obj_centers[obj_index][0], -obj_centers[obj_index][1], -obj_centers[obj_index][2]);
     for (int i=0; i<bezObjs[k].size(); i++) {
       bezObjs[k][i].draw();
     }
@@ -291,16 +291,16 @@ void myArrowKeys(int key, int x, int y) {
     //Translate
     switch(key) {
       case GLUT_KEY_UP:
-        trans[current_obj][0]+=0.1;
+        trans[current_obj][1]+=0.1;
         break;
       case GLUT_KEY_DOWN:
-        trans[current_obj][0]-=0.1;
-        break;
-      case GLUT_KEY_LEFT:
         trans[current_obj][1]-=0.1;
         break;
+      case GLUT_KEY_LEFT:
+        trans[current_obj][0]-=0.1;
+        break;
       case GLUT_KEY_RIGHT:
-        trans[current_obj][1]+=0.1;
+        trans[current_obj][0]+=0.1;
         break;
     }
   } else {
