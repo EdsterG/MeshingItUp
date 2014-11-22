@@ -57,7 +57,7 @@ void Parser::parse(int* argc, char** argv) {
     //Initial offset to fit model on screen
     double center[3] = {0,0,0};
     obj_centers.push_back(std::vector<double>(center,center+3));
-    double translation[3] = {0,0,-6};
+    double translation[3] = {0,0,-10};
     trans.push_back(std::vector<double>(translation,translation+3));
     double rotation[3] = {0,0,0};
     rot.push_back(std::vector<double>(rotation,rotation+3));
