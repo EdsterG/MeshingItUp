@@ -38,9 +38,9 @@ else
 void BezPatch::uniformSampling() {
   int num_steps = (int)(1/param)+1;
 
-  for (double u = 0; u <= 1; u+=param) {
-    for (double v = 0; v <= 1; v+=param) {
-      vertices.push_back(bezPatchInterp(u,v));
+  for (int u = 0; u*param <= 1; u++) {
+    for (int v = 0; v*param <= 1; v++) {
+      vertices.push_back(bezPatchInterp(u*param,v*param));
     }
   }
 
@@ -56,8 +56,8 @@ void BezPatch::uniformSampling() {
       faces.push_back(std::vector<int>(indices+1,indices+4));
     }
   }
-
 }
+
 void BezPatch::adaptiveSampling() {
   vertices.push_back(bezPatchInterp(0,0));
   vertices.push_back(bezPatchInterp(0,1));
