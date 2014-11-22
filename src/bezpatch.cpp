@@ -36,18 +36,10 @@ else
 }
 
 void BezPatch::uniformSampling() {
-  // Broken for param=0.1
-  int num_steps = (int)(1/param);
-  if (1-num_steps*param < 0.0000001) {
-    num_steps+=1;
-  } else {
-    num_steps+=2;
-  }
+  int num_steps = (int)(1/param)+1;
 
-  for (double u = 0; u <= 1 || u-param<1; u+=param) {
-    if (u>1) u=1;
-    for (double v = 0; v <= 1 || v-param<1; v+=param) {
-      if (v>1) v=1;
+  for (double u = 0; u <= 1; u+=param) {
+    for (double v = 0; v <= 1; v+=param) {
       vertices.push_back(bezPatchInterp(u,v));
     }
   }
