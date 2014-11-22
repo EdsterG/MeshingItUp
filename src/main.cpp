@@ -64,6 +64,24 @@ std::vector<std::vector<double> > trans;
 std::vector<std::vector<double> > rot;
 int current_obj = 0;
 
+float curr_fill_amb[3] = {0.3f, 0.0f, 0.0f};
+float curr_fill_diff[3] = {1.0f, 0.0f, 0.0f};
+float curr_fill_spec[3] = {1.0f, 1.0f, 1.0f};
+
+float curr_wire_amb[3] = {1.0f, 0.0f, 0.0f};
+float curr_wire_diff[3] = {0.5f, 0.0f, 0.0f};
+float curr_wire_spec[3] = {0.0f, 0.0f, 0.0f};
+
+float fill_amb[3] = {0.0f, 0.3f, 0.3f};
+float fill_diff[3] = {0.0f, 1.0f, 1.0f};
+float fill_spec[3] = {1.0f, 1.0f, 1.0f};
+
+float wire_amb[3] = {0.0f, 1.0f, 1.0f};
+float wire_diff[3] = {0.0f, 0.5f, 0.5f};
+float wire_spec[3] = {0.0f, 0.0f, 0.0f};
+
+
+
 int prev_x = 0;
 int prev_y = 0;
 int curr_x = 0;
@@ -130,10 +148,35 @@ void initScene(){
 //****************************************************
 // functions that do the actual drawing of stuff
 //***************************************************
+void setColor(int index) {
+  if (index==current_obj) {
+    if (mode==FILLED) { 
+      glMaterialfv(GL_FRONT_AND_BACK, GL_AMBIENT, curr_fill_amb);
+      glMaterialfv(GL_FRONT_AND_BACK, GL_DIFFUSE, curr_fill_diff);
+      glMaterialfv(GL_FRONT_AND_BACK, GL_SPECULAR, curr_fill_spec);
+    } else {
+      glMaterialfv(GL_FRONT_AND_BACK, GL_AMBIENT, curr_wire_amb);
+      glMaterialfv(GL_FRONT_AND_BACK, GL_DIFFUSE, curr_wire_diff);
+      glMaterialfv(GL_FRONT_AND_BACK, GL_SPECULAR, curr_wire_spec);
+    }
+  } else {
+    if (mode==FILLED) { 
+      glMaterialfv(GL_FRONT_AND_BACK, GL_AMBIENT, fill_amb);
+      glMaterialfv(GL_FRONT_AND_BACK, GL_DIFFUSE, fill_diff);
+      glMaterialfv(GL_FRONT_AND_BACK, GL_SPECULAR, fill_spec);
+    } else {
+      glMaterialfv(GL_FRONT_AND_BACK, GL_AMBIENT, wire_amb);
+      glMaterialfv(GL_FRONT_AND_BACK, GL_DIFFUSE, wire_diff);
+      glMaterialfv(GL_FRONT_AND_BACK, GL_SPECULAR, wire_spec);
+    }
+  }
+}
+
 void drawObjects() {
   int obj_index;
   for (int k=0; k<bezObjs.size(); k++){
     obj_index = bezObjs[k][0].getIndex();
+    setColor(obj_index);
     glLoadIdentity(); // make sure transformation is "zero'd"
     glTranslatef(trans[obj_index][0], trans[obj_index][1], trans[obj_index][2]);
     glRotatef(rot[obj_index][0],1.0,0.0,0.0);
@@ -146,11 +189,13 @@ void drawObjects() {
   }
   for (int k=0; k<objModels.size(); k++) {
     obj_index = objModels[k].getIndex();
+    setColor(obj_index);
     glLoadIdentity(); // make sure transformation is "zero'd"
     glTranslatef(trans[obj_index][0], trans[obj_index][1], trans[obj_index][2]);
     glRotatef(rot[obj_index][0],1.0,0.0,0.0);
     glRotatef(rot[obj_index][1],0.0,1.0,0.0);
     glRotatef(rot[obj_index][2],0.0,0.0,1.0);
+    glTranslatef(-obj_centers[obj_index][0], -obj_centers[obj_index][1], -obj_centers[obj_index][2]);
     objModels[k].draw();
   }
 }
@@ -166,14 +211,11 @@ void myDisplay() {
   else glShadeModel(GL_SMOOTH);
 
   if (mode==FILLED) {
-    glEnable(GL_LIGHTING);
     glPolygonMode(GL_FRONT_AND_BACK, GL_FILL);
   }
   else {
-    glDisable(GL_LIGHTING);
     glPolygonMode(GL_FRONT_AND_BACK, GL_LINE);
   }
-  glColor3f(1.0,1.0,1.0);
   drawObjects();
 
   if (mode==HIDDEN) {
@@ -182,7 +224,9 @@ void myDisplay() {
     glEnable(GL_POLYGON_OFFSET_FILL);
     glPolygonOffset(1.0, 1.0);
     glColor3f(0.0f, 0.0f, 0.0f); // Background color
+    glDisable(GL_LIGHTING);
     drawObjects();
+    glEnable(GL_LIGHTING);
     glDisable(GL_POLYGON_OFFSET_FILL);
   }
 
@@ -210,7 +254,7 @@ void myDisplay() {
 // function to process keyboard input
 //***************************************************
 void myKeyboard(unsigned char key, int x, int y) {
-  if (key == 'q' || key == SPACEBAR) {
+  if (key == 'q') {
     exit(0);
   }
   if (key == 's') {
@@ -233,6 +277,9 @@ void myKeyboard(unsigned char key, int x, int y) {
   }
   if (key == '-') {
     trans[current_obj][2]-=0.1;
+  }
+  if (key == SPACEBAR) {
+    current_obj = (current_obj+1)%(bezObjs.size()+objModels.size());
   }
 
   glutPostRedisplay();
