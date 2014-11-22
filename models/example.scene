@@ -1,0 +1,8 @@
+xft -0.05 0 -0.5
+center 0 0.1 0
+load models/bunny.obj
+
+xft 1.5 0 -15
+center 0 0 1
+param 0.1
+load models/teapot.bez

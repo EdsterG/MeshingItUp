@@ -82,8 +82,11 @@ void Parser::loadScene(std::string filename) {
   std::string model_filename = "";
   std::string model_ext = "";
   double translate[3] = {0,0,0};
+  double rotate[3] = {0,0,0};
   double center[3] = {0,0,0};
 
+  bool adaptive = false;
+  double param = 0.1;
 
   std::ifstream scnFile(filename.c_str());
   if (scnFile.is_open()) {
@@ -111,16 +114,23 @@ void Parser::loadScene(std::string filename) {
       if (items.size() < 1) {
         continue;
       }
-      else if (items[0].compare("model") == 0) {
+      else if (items[0].compare("load") == 0) {
         model_filename = items[1];
 
         int dotIndex = model_filename.find_last_of(".");
-        model_ext = filename.substr(dotIndex+1,filename.size());
+        model_ext = model_filename.substr(dotIndex+1,model_filename.size());
+
         if (model_ext.compare("bez")==0) {
-          //loadBez(filename,param,adaptive);
+          loadBez(model_filename,param,adaptive);
+          obj_centers.push_back(std::vector<double>(center,center+3));
+          trans.push_back(std::vector<double>(translate,translate+3));
+          rot.push_back(std::vector<double>(rotate,rotate+3));
         }
         else if (model_ext.compare("obj")==0) {
-          //loadOBJ(filename);
+          loadOBJ(model_filename);
+          obj_centers.push_back(std::vector<double>(center,center+3));
+          trans.push_back(std::vector<double>(translate,translate+3));
+          rot.push_back(std::vector<double>(rotate,rotate+3));
         }
       }
       else if (items[0].compare("center") == 0) {
@@ -133,19 +143,26 @@ void Parser::loadScene(std::string filename) {
         translate[1] += atof(items[2].c_str());
         translate[2] += atof(items[3].c_str());
       }
+      else if (items[0].compare("param") == 0) {
+        param = atof(items[1].c_str());
+      }
+      else if (items[0].compare("tess") == 0) {
+        if (items[1].compare("adaptive")==0){
+          adaptive = true;
+        } else {
+          adaptive = false;
+        }
+      }
       else {
         std::cerr << "Unknown type: " << items[0] << std::endl;
         continue;
       }
-      std::cout << items[0] << std::endl;
+      // std::cout << items[0] << std::endl;
     }
     scnFile.close();
   }
   else std::cout << "Unable to open file" << std::endl;
 
-  // if (outputName.size()<1) {
-  //   outputName = "out.png";
-  // }
 }
 
 void Parser::loadBez(std::string filename, double param, bool adaptive) {
