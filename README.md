@@ -1,14 +1,15 @@
+##########################################
 CS184 - Foundations of Computer Graphics
 Assignment 3: Bezier Subdivision
-==========================================
+##########################################
 
-Names:
-------
+Authors:
+----------
   Wisam Reid (cs184-ds)
   Eddie Groshev (cs184-en)
 
 Platform:
----------
+-----------
   Mac OSX
 
   Tested on Mac OSX 10.9.5 and Mac OSX 10.6.8 on personal computer[s].
@@ -21,7 +22,7 @@ Submission:
   README by Wisam Reid (cs184-ds)
 
 BUILD:
-----------
+--------
   Run 'make' to build
 
 SOURCE FILES:
@@ -45,24 +46,40 @@ SOURCE FILES:
   viewpoint.h
   bezpatch.h
 
-LIBRARIES:
-------------
+Libraries and credits:
+------------------------
   eigen
+    https://github.com/cryos/eigen
+
+  sunflower OBJ file
+    http://www.3dmodelfree.com/models/26852-0.htm
 
 
 FUNCTIONALITY (SPEC):
 -----------------------
 
-  1) Tessellate/triangulate the patch using either a uniform or adaptive technique. (You have to
-implement both, your program will have a command-line flag to determine which is used.)
+  1) Tessellation using either a uniform or adaptive technique.
 
   2) Running the executable opens a window and uses OpenGL to Render the object.
 
   Controls:
   --------
+
     1) When "s" is pressed the program will toggle between flat and smooth shading.
 
-    2) When "w" is pressed the program will toggle between filled and wireframe mode.  
+    2) When "w" is pressed the program will toggle between filled and wireframe mode.
+
+  Command line arguments:
+  ----------------------
+
+    1) Two parameters input file name and subdivision parameter
+
+        eg: ./as3 teapot.bez 0.1
+
+    2) flag for uniform or adaptive tessellation (Uniform tessellation by default -a for adaptive)
+
+        eg: ./as3 teapot.bez 0.1 -a
+
 
 FUNCTIONALITY (E/C):
 ----------------------
@@ -76,3 +93,11 @@ FUNCTIONALITY (E/C):
   4) When launched the initial zoom will show the entire object.
 
   5) Pressing the +/- keys will zoom in/out.
+
+  6) Load and display OBJ files
+
+  7) Output OBJ files
+
+  8) The ability to load multiple objects
+      - mix of .bez and .obj files
+      - display them each with different transformations
