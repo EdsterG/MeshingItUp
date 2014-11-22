@@ -54,6 +54,10 @@ Libraries and credits:
   sunflower OBJ file
     http://www.3dmodelfree.com/models/26852-0.htm
 
+  hidden-line removal code segment
+    http://www.glprogramming.com/red/chapter14.html#name16
+
+
 
 FUNCTIONALITY (SPEC):
 -----------------------
