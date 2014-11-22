@@ -154,8 +154,11 @@ FUNCTIONALITY (E/C):
   7) Output OBJ files
 
   8) The ability to load multiple objects
-      - mix of .bez and .obj files
-      - display them each with different transformations
+    - mix of .bez and .obj files
+    - display them each with different transformations
+
+          image-08.png
+            input: ./as3 models/example.scene
 
 
 IMAGES:
@@ -186,5 +189,8 @@ image-06.png
   key command: "s"
 
 image-07.png
-  input: ./as3 models/test.bez  0.01
+  input: ./as3 models/test.bez  0.01 -a
   key command: "h"
+
+image-08.png
+  input: ./as3 models/example.scene  
