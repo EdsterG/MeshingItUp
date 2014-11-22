@@ -51,7 +51,28 @@ LIBRARIES:
 
 
 FUNCTIONALITY (SPEC):
----------------------
+-----------------------
+
+  1) Tessellate/triangulate the patch using either a uniform or adaptive technique. (You have to
+implement both, your program will have a command-line flag to determine which is used.)
+
+  2) Running the executable opens a window and uses OpenGL to Render the object.
+
+  Controls:
+  --------
+    1) When "s" is pressed the program will toggle between flat and smooth shading.
+
+    2) When "w" is pressed the program will toggle between filled and wireframe mode.  
 
 FUNCTIONALITY (E/C):
----------------------
+----------------------
+
+  1) When "h" is pressed the program will toggle between filled and hidden-line mode.
+
+  2) When the arrow keys are pressed the object will be rotated.
+
+  3) When the shift+arrow keys are pressed the object will be translated.
+
+  4) When launched the initial zoom will show the entire object.
+
+  5) Pressing the +/- keys will zoom in/out.
