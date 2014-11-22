@@ -81,7 +81,7 @@ FUNCTIONALITY (SPEC):
 
     1) When "s" is pressed the program will toggle between flat and smooth shading.
 
-            See BezierDemo.gif
+            See demo-02.gif
 
             image-06.png
               input: ./as3 models/bunny.obj  0.1
@@ -89,7 +89,7 @@ FUNCTIONALITY (SPEC):
 
     2) When "w" is pressed the program will toggle between filled and wireframe mode.
 
-            See BezierDemo.gif
+            See demo-02.gif
 
             image-01.png
               input: ./as3 models/teapot.bez 0.1
@@ -124,7 +124,7 @@ FUNCTIONALITY (E/C):
 
   1) When "h" is pressed the program will toggle between filled and hidden-line mode.
 
-          See BezierDemo.gif
+          See demo-02.gif
 
           image-07.png
             input: ./as3 models/test.bez  0.01
@@ -132,19 +132,20 @@ FUNCTIONALITY (E/C):
 
   2) When the arrow keys are pressed the object will be rotated.
 
-          See BezierDemo.gif
+          See demo-01.gif
 
   3) When the shift+arrow keys are pressed the object will be translated.
 
-          See BezierDemo.gif
+          See demo-01.gif
 
   4) When launched the initial zoom will show the entire object.
 
-          See BezierDemo.gif
+          See demo-01.gif
+              demo-02.gif
 
   5) Pressing the +/- keys will zoom in/out.
 
-          See BezierDemo.gif
+          See demo-01.gif
 
   6) Load and display OBJ files
 
@@ -156,6 +157,7 @@ FUNCTIONALITY (E/C):
   8) The ability to load multiple objects
     - mix of .bez and .obj files
     - display them each with different transformations
+    - hit spacebar to toggle control
 
           image-08.png
             input: ./as3 models/example.scene
@@ -164,7 +166,8 @@ FUNCTIONALITY (E/C):
 IMAGES:
 ---------
 
-BezierDemo.gif
+demo-01.gif
+demo-02.gif
 
 image-01.png
   input: ./as3 models/teapot.bez 0.1
@@ -193,4 +196,8 @@ image-07.png
   key command: "h"
 
 image-08.png
-  input: ./as3 models/example.scene  
+  input: ./as3 models/example.scene
+
+image-09.png
+  input: ./as3 models/example.scene
+  key command: "spacebar"
