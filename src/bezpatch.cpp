@@ -36,6 +36,7 @@ else
 }
 
 void BezPatch::uniformSampling() {
+  // Broken for param=0.1
   int num_steps = (int)(1/param);
   if (1-num_steps*param < 0.0000001) {
     num_steps+=1;
@@ -216,6 +217,9 @@ Point BezPatch::secondDeriv(Point (&p)[4], double u) {
 
 void BezPatch::setIndex(int index_) { index=index_;}
 int BezPatch::getIndex() {return index;}
+
+std::vector<Vertex>& BezPatch::getVertices() {return vertices;}
+std::vector<std::vector<int> >& BezPatch::getFaces() {return faces;}
 
 void BezPatch::draw() {
   for (int i=0; i < faces.size(); i++) {

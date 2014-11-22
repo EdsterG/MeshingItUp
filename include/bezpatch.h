@@ -38,6 +38,8 @@ class BezPatch {
   Point secondDeriv(Point (&p)[4], double u);
   void setIndex(int index);
   int getIndex();
+  std::vector<Vertex>& getVertices();
+  std::vector<std::vector<int> >& getFaces();
   void draw();
 
 };

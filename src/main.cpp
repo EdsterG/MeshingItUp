@@ -131,23 +131,26 @@ void initScene(){
 // functions that do the actual drawing of stuff
 //***************************************************
 void drawObjects() {
-  // for (int k=0; k<bezObjs.size(); k++){
-  //   glLoadIdentity(); // make sure transformation is "zero'd"
-  //   glTranslatef(trans[k][0], trans[k][1], trans[k][2]);
-  //   glRotatef(rot[k][0],1.0,0.0,0.0);
-  //   glRotatef(rot[k][1],0.0,1.0,0.0);
-  //   glRotatef(rot[k][2],0.0,0.0,1.0);
-  //   // glTranslatef(-obj_centers[k][0], -obj_centers[k][1], -obj_centers[k][2]); 
-  //   for (int i=0; i<bezObjs[k].size(); i++) {
-  //     bezObjs[k][i].draw();
-  //   }
-  // }
-  for (int k=0; k<objModels.size(); k++) {
+  int obj_index;
+  for (int k=0; k<bezObjs.size(); k++){
+    obj_index = bezObjs[k][0].getIndex();
     glLoadIdentity(); // make sure transformation is "zero'd"
-    glTranslatef(trans[k][0], trans[k][1], trans[k][2]);
-    glRotatef(rot[k][0],1.0,0.0,0.0);
-    glRotatef(rot[k][1],0.0,1.0,0.0);
-    glRotatef(rot[k][2],0.0,0.0,1.0);
+    glTranslatef(trans[obj_index][0], trans[obj_index][1], trans[obj_index][2]);
+    glRotatef(rot[obj_index][0],1.0,0.0,0.0);
+    glRotatef(rot[obj_index][1],0.0,1.0,0.0);
+    glRotatef(rot[obj_index][2],0.0,0.0,1.0);
+    glTranslatef(-obj_centers[obj_index][0], -obj_centers[obj_index][1], -obj_centers[obj_index][2]); 
+    for (int i=0; i<bezObjs[k].size(); i++) {
+      bezObjs[k][i].draw();
+    }
+  }
+  for (int k=0; k<objModels.size(); k++) {
+    obj_index = objModels[k].getIndex();
+    glLoadIdentity(); // make sure transformation is "zero'd"
+    glTranslatef(trans[obj_index][0], trans[obj_index][1], trans[obj_index][2]);
+    glRotatef(rot[obj_index][0],1.0,0.0,0.0);
+    glRotatef(rot[obj_index][1],0.0,1.0,0.0);
+    glRotatef(rot[obj_index][2],0.0,0.0,1.0);
     objModels[k].draw();
   }
 }

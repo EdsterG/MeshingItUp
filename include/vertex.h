@@ -26,14 +26,17 @@ namespace stl
 class Vertex {
  private:
   Point p;
+  bool normalSet;
   Point n;
   double u,v;
 
  public:
+  Vertex(const Point& p);
   Vertex(const Point& p, const Point& n);
   Vertex(const Point& p, const Point& n, double u, double v);
   const Point& pos();
   const Point& normal();
+  const bool hasNormal();
   const double getU();
   const double getV();
 
