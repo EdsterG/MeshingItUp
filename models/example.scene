@@ -4,5 +4,12 @@ load models/bunny.obj
 
 xft 1.5 0 -15
 center 0 0 1
-param 0.1
+param 0.01
+tess adaptive
 load models/teapot.bez
+
+xft 1.75 0 5
+center 0 0 0
+param 0.2
+tess uniform
+load models/spoon.bez
