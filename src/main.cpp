@@ -27,8 +27,6 @@
 #include "bezpatch.h"
 #include "objmodel.h"
 #include "point.h"
-#include <Eigen/Core>
-#include <Eigen/LU>
 
 #define PI 3.14159265  // Should be used from mathlib
 //#define SPACEBAR ' '
@@ -80,26 +78,6 @@ float wire_amb[3] = {0.0f, 1.0f, 1.0f};
 float wire_diff[3] = {0.0f, 0.5f, 0.5f};
 float wire_spec[3] = {0.0f, 0.0f, 0.0f};
 
-
-
-int prev_x = 0;
-int prev_y = 0;
-int curr_x = 0;
-int curr_y = 0;
-int arcball_on = false;
-
-Point get_arcball_vector(int x, int y) {
-  Point point = Point((double)x/viewport.getW()*2 - 1.0,
-        (double)y/viewport.getH()*2 - 1.0,
-        0);
-  point.setY(-point[1]);
-  float norm_squared = point.dot(point);
-  if (norm_squared <= 1)
-    point.setY(sqrt(1 - norm_squared));  // Pythagore
-  else
-    point = point/point.norm();  // nearest point
-  return point;
-}
 
 //****************************************************
 // reshape viewport if the window is resized
@@ -231,22 +209,7 @@ void myDisplay() {
   }
 
   glutPostRedisplay();
-
-  //-----------------------------------------------------------------------
-
-  /* onIdle() */
-  if (curr_x != prev_x || curr_y != prev_y) {
-    Point va = get_arcball_vector(prev_x, prev_y);
-    Point vb = get_arcball_vector( curr_x,  curr_y);
-    float angle = acos(fmin(1.0f, va.dot(vb)));
-    Point axis_in_camera_coord = va.cross(vb);
-    // Eigen::Matrix3d camera2object = (std::transform[MODE_CAMERA] * Eigen::Matrix3d(mesh.object2world)).inverse;
-    // Point axis_in_object_coord = camera2object * axis_in_camera_coord;
-  // mesh.object2world = glm::rotate(mesh.object2world, glm::degrees(angle), axis_in_object_coord);
-  // prev_x = curr_x;
-  // prev_y = curr_y;
-}
-  //glFlush();
+  glFlush();
   glutSwapBuffers();					// swap buffers (we earlier set double buffer)
 }
 
@@ -332,13 +295,6 @@ void myMouse(int button, int state, int x, int y) {
   //Possible button inputs: GLUT_LEFT_BUTTON, GLUT_RIGHT_BUTTON, or GLUT_MIDDLE_BUTTON
   //Possible state inputs: GLUT_UP or GLUT_DOWN
   // glutPostRedisplay();
-  if (button == GLUT_LEFT_BUTTON && state == GLUT_DOWN) {
-    arcball_on = true;
-    prev_x = curr_x = x;
-    prev_y = curr_y = y;
-  } else {
-    arcball_on = false;
-  }
 }
 
 void myMouseMotion(int mouseX, int mouseY) {
@@ -354,10 +310,6 @@ void myMouseMotion(int mouseX, int mouseY) {
   // }
 
   // glutPostRedisplay();
-  if (arcball_on) {  // if left button is pressed
-    curr_x = mouseX;
-    curr_y = mouseY;
-  }
 }
 
 //****************************************************
